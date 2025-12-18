@@ -73,35 +73,35 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <div className="flex justify-center mb-6">
-          <div className="bg-industrial-primary p-4 rounded-full">
-            <Wheat size={32} className="text-industrial-warning" />
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-6 md:py-8">
+      <div className="bg-white p-4 md:p-8 rounded-lg shadow-lg max-w-md w-full">
+        <div className="flex justify-center mb-3 md:mb-6">
+          <div className="bg-industrial-primary p-2 md:p-4 rounded-full">
+            <Wheat className="h-6 w-6 md:h-8 md:w-8 text-industrial-warning" />
           </div>
         </div>
         
-        <h1 className="text-2xl font-bold text-center text-industrial-primary mb-6">
+        <h1 className="text-xl md:text-2xl font-bold text-center text-industrial-primary mb-2 md:mb-6">
           AgroFlow Aves
         </h1>
-        <h2 className="text-xl text-center text-gray-600 mb-8">
+        <h2 className="text-sm md:text-xl text-center text-gray-600 mb-4 md:mb-8">
           Sistema de monitoramento de aviários
         </h2>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
             <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome de Usuário</FormLabel>
+                  <FormLabel className="text-sm md:text-base">Nome de Usuário</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <User className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
                         placeholder="Digite seu nome de usuário"
-                        className="pl-10"
+                        className="pl-8 md:pl-10 h-10 md:h-11 text-sm md:text-base"
                         {...field}
                       />
                     </div>
@@ -116,14 +116,14 @@ const Login = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Senha</FormLabel>
+                  <FormLabel className="text-sm md:text-base">Senha</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Lock className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
                         type="password"
                         placeholder="Digite sua senha"
-                        className="pl-10"
+                        className="pl-8 md:pl-10 h-10 md:h-11 text-sm md:text-base"
                         {...field}
                       />
                     </div>
@@ -133,10 +133,10 @@ const Login = () => {
               )}
             />
 
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-2">
               <Button 
                 type="submit" 
-                className="w-full bg-industrial-primary hover:bg-industrial-primary/90"
+                className="w-full bg-industrial-primary hover:bg-industrial-primary/90 h-10 md:h-11 text-sm md:text-base"
                 disabled={loading}
               >
                 <LogIn className="mr-2 h-4 w-4" />
@@ -146,9 +146,9 @@ const Login = () => {
           </form>
         </Form>
         
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-4 md:mt-6 text-center text-xs md:text-sm text-gray-500">
           <p>AgroFlow Aves</p>
-          <p>Sistema de monitoramento de aviários</p>
+          <p className="hidden md:block">Sistema de monitoramento de aviários</p>
         </div>
       </div>
     </div>
