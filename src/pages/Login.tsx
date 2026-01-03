@@ -52,7 +52,7 @@ const Login = () => {
 
         toast({
           title: "Login bem-sucedido",
-          description: "Bem-vindo ao AgroFlow Aves!",
+          description: "Bem-vindo ao AgroFlow Sistemas!",
         });
         
         navigate("/");
@@ -82,10 +82,10 @@ const Login = () => {
         </div>
         
         <h1 className="text-xl md:text-2xl font-bold text-center text-industrial-primary mb-2 md:mb-6">
-          AgroFlow Aves
+          AgroFlow Sistemas
         </h1>
         <h2 className="text-sm md:text-xl text-center text-gray-600 mb-4 md:mb-8">
-          Sistema de monitoramento de aviários
+          Sistema de monitoramento
         </h2>
 
         <Form {...form}>
@@ -147,8 +147,8 @@ const Login = () => {
         </Form>
         
         <div className="mt-4 md:mt-6 text-center text-xs md:text-sm text-gray-500">
-          <p>AgroFlow Aves</p>
-          <p className="hidden md:block">Sistema de monitoramento de aviários</p>
+          <p className="hidden md:block">Sistema de monitoramento</p>
+          <p>v1.0.0</p>
         </div>
       </div>
     </div>
