@@ -24,7 +24,7 @@ export const useLogin = () => {
       
       try {
         // Buscar dados de autenticação
-        const response = await axios.get(`http://10.99.2.17:1881/usuarios`, {
+        const response = await axios.get(`http://72.62.9.133:1882/login`, {
           params: {
             username: dataLogin,
             password: dataPassword
