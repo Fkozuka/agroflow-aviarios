@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Producao from "./pages/Producao";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Grupo from "./pages/grupo";
 import { AuthProvider } from "./hooks/use-auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -36,6 +37,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Producao />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/grupo" 
+              element={
+                <ProtectedRoute>
+                  <Grupo />
                 </ProtectedRoute>
               } 
             />
