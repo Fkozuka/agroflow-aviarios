@@ -50,12 +50,12 @@ const Grupo = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 w-full">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-industrial-primary mb-6 sm:mb-8 text-center px-4">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 w-full">
+        <h1 className="text-xl md:text-2xl font-bold text-industrial-primary mb-4 md:mb-8 text-center px-4">
           Seja bem-vindo, {userName || 'Usuário'}!
         </h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-6xl w-full px-4 sm:px-0">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 max-w-6xl w-full px-4 md:px-0">
           {sistemas.map((sistema) => {
             const IconComponent = sistema.icon;
             return (
@@ -64,18 +64,18 @@ const Grupo = () => {
                 className="cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-95 hover:scale-105 border-2 border-gray-200 touch-manipulation"
                 onClick={() => handleCardClick(sistema.path)}
               >
-                <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
-                  <div className="flex justify-center mb-3 sm:mb-4">
-                    <div className={`p-3 sm:p-4 rounded-full bg-gray-100 ${sistema.color}`}>
-                      <IconComponent className="w-10 h-10 sm:w-12 sm:h-12" />
+                <CardHeader className="text-center pb-3 md:pb-4 px-4 md:px-6">
+                  <div className="flex justify-center mb-3 md:mb-4">
+                    <div className={`p-2 md:p-4 rounded-full bg-gray-100 ${sistema.color}`}>
+                      <IconComponent className="h-6 w-6 md:h-8 md:w-8" />
                     </div>
                   </div>
-                  <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-industrial-primary leading-tight">
+                  <CardTitle className="text-base md:text-xl font-bold text-industrial-primary leading-tight">
                     {sistema.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-                  <CardDescription className="text-center text-sm sm:text-base leading-relaxed">
+                <CardContent className="px-4 md:px-6 pb-4 md:pb-6">
+                  <CardDescription className="text-center text-sm md:text-base leading-relaxed">
                     {sistema.description}
                   </CardDescription>
                 </CardContent>
