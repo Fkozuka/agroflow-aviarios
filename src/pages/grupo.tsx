@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wind, Thermometer, Home } from 'lucide-react';
+import { useGrupo } from '@/hooks/useGrupo';
 
 const Grupo = () => {
   const [userName, setUserName] = useState<string>('');
   const navigate = useNavigate();
+  const { dadosGrupo, loading, error, carregarDadosGrupo } = useGrupo();
 
   useEffect(() => {
     // Obtém o nome do usuário do localStorage
@@ -14,7 +16,10 @@ const Grupo = () => {
     if (storedUserName) {
       setUserName(storedUserName);
     }
-  }, []);
+    
+    // Carrega os dados do grupo
+    carregarDadosGrupo();
+  }, [carregarDadosGrupo]);
 
   const sistemas = [
     {
@@ -23,7 +28,8 @@ const Grupo = () => {
       description: 'Monitoramento e supervisão de secadores',
       icon: Wind,
       path: '/secadores',
-      color: 'text-blue-600'
+      color: 'text-blue-600',
+      enabled: dadosGrupo?.secador ?? false
     },
     {
       id: 'termometria',
@@ -31,7 +37,8 @@ const Grupo = () => {
       description: 'Monitore a temperatura dos silos em tempo real',
       icon: Thermometer,
       path: '/termometria',
-      color: 'text-red-600'
+      color: 'text-red-600',
+      enabled: dadosGrupo?.termometria ?? false
     },
     {
       id: 'aviarios',
@@ -39,12 +46,15 @@ const Grupo = () => {
       description: 'Controle e monitoramento completo para aviários',
       icon: Home,
       path: '/aviarios',
-      color: 'text-green-600'
+      color: 'text-green-600',
+      enabled: dadosGrupo?.aviario ?? false
     }
   ];
 
-  const handleCardClick = (path: string) => {
-    navigate(path);
+  const handleCardClick = (path: string, enabled: boolean) => {
+    if (enabled) {
+      navigate(path);
+    }
   };
 
   return (
@@ -58,11 +68,16 @@ const Grupo = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 max-w-6xl w-full px-4 md:px-0">
           {sistemas.map((sistema) => {
             const IconComponent = sistema.icon;
+            const isEnabled = sistema.enabled;
             return (
               <Card
                 key={sistema.id}
-                className="cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-95 hover:scale-105 border-2 border-gray-200 touch-manipulation"
-                onClick={() => handleCardClick(sistema.path)}
+                className={`border-2 border-gray-200 transition-all duration-300 ${
+                  isEnabled 
+                    ? 'cursor-pointer hover:shadow-lg active:scale-95 hover:scale-105 touch-manipulation' 
+                    : 'opacity-50 cursor-not-allowed'
+                }`}
+                onClick={() => handleCardClick(sistema.path, isEnabled)}
               >
                 <CardHeader className="text-center pb-3 md:pb-4 px-4 md:px-6">
                   <div className="flex justify-center mb-3 md:mb-4">

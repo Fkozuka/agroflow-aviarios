@@ -47,16 +47,21 @@ const Header = () => {
             <Wheat size={32} className="text-industrial-warning" />
             <h1 className="text-2xl font-bold">AgroFlow Sistemas</h1>
           </div>
-          {!isGrupoPage && <MobileNav />}
+          <div className="flex items-center gap-4">
+            {!isGrupoPage && <MobileNav />}
+            <div className="md:hidden">
+              <UserMenu />
+            </div>
+          </div>
         </div>
         
-        <div className="flex flex-col md:flex-row items-center gap-6">          
+        <div className="hidden md:flex flex-row items-center gap-6">          
           <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <Clock size={20} />
               <span className="font-medium">{currentTime}</span>
             </div>
-            <div className="hidden md:flex items-center gap-2 text-sm text-gray-300">
+            <div className="flex items-center gap-2 text-sm text-gray-300">
               <span>{currentDate}</span>
             </div>
             <UserMenu />
