@@ -55,7 +55,7 @@ const Login = () => {
           description: "Bem-vindo ao AgroFlow Sistemas!",
         });
         
-        navigate("/");
+        navigate("/grupo");
       } else {
         toast({
           title: "Erro no login",
@@ -148,7 +148,7 @@ const Login = () => {
         
         <div className="mt-4 md:mt-6 text-center text-xs md:text-sm text-gray-500">
           <p className="hidden md:block">Sistema de monitoramento</p>
-          <p>v1.1.0</p>
+          <p>v1.1.1</p>
         </div>
       </div>
     </div>
