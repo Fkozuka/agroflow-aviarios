@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { getAuthHeaders } from '@/utils/apiConfig';
 
 //Interface para dados básicos das valvulas
 interface statusCLP {
@@ -19,7 +20,15 @@ export const useStatusCLP = () => {
     setError(null);
     
     try {
-      const response = await axios.get(`http://10.99.2.17:1881/status-clp`);
+      const response = await axios.post(
+        `https://api-system.agroflowsystems.com.br/status-clp`,
+        {},
+        {
+          headers: {
+            ...getAuthHeaders()
+          }
+        }
+      );
       
       if (Array.isArray(response.data)) {
         setStatusCLP(response.data);
