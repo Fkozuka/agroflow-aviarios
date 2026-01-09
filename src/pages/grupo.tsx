@@ -48,10 +48,10 @@ const Grupo = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       <Header />
-      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 w-full">
-        <h1 className="text-xl md:text-2xl font-bold text-industrial-primary mb-4 md:mb-8 text-center px-4">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 w-full max-w-full">
+        <h1 className="text-xl md:text-2xl font-bold text-industrial-primary mb-4 md:mb-8 text-center px-4 w-full">
           Seja bem-vindo, {userName || 'Usuário'}!
         </h1>
         
