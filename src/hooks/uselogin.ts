@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-// GET PARA RECEBER STATUS AUTENTICAÇÃO
+// POST PARA RECEBER STATUS AUTENTICAÇÃO
 interface dadosAutenticacao {
     status: boolean;
 }
@@ -24,11 +24,9 @@ export const useLogin = () => {
       
       try {
         // Buscar dados de autenticação
-        const response = await axios.get(`https://api-system.agroflowsystems.com.br/login`, {
-          params: {
-            username: dataLogin,
-            password: dataPassword
-          }
+        const response = await axios.post(`https://api-system.agroflowsystems.com.br/login`, {
+          username: dataLogin,
+          password: dataPassword
         });
         
         if (Array.isArray(response.data)) {
