@@ -45,7 +45,7 @@ const Login = () => {
       const authData = await autenticarLogin(values.username, values.password);
       
       // Verifica se a autenticação foi bem-sucedida usando os dados retornados diretamente
-      if (authData && authData.length > 0 && authData[0].status === true) {
+      if (authData && authData.length > 0 && authData[0].status === true && authData[0].token) {
         // Salva o estado de autenticação
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("userName", values.username);

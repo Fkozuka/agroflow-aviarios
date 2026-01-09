@@ -39,3 +39,25 @@ export const isUnidadeGoioere = (): boolean => {
   return unidadeId === "2" || unidadeNome === "Unidade Goioerê";
 };
 
+/**
+ * Função utilitária para obter o token de autenticação
+ * @returns O token de autenticação ou null se não existir
+ */
+export const getAuthToken = (): string | null => {
+  return localStorage.getItem('auth_token');
+};
+
+/**
+ * Função utilitária para obter os headers de autenticação
+ * @returns Objeto com os headers de autenticação ou objeto vazio se não houver token
+ */
+export const getAuthHeaders = (): Record<string, string> => {
+  const token = getAuthToken();
+  if (token) {
+    return {
+      'Authorization': `Bearer ${token}`,
+    };
+  }
+  return {};
+};
+

@@ -4,6 +4,7 @@ import axios from 'axios';
 // POST PARA RECEBER STATUS AUTENTICAÇÃO
 interface dadosAutenticacao {
     status: boolean;
+    token: string;
 }
 
 /**
@@ -31,6 +32,15 @@ export const useLogin = () => {
         
         if (Array.isArray(response.data)) {
           setDadosAutenticacao(response.data);
+          
+          // Salva o token no localStorage se status e token estiverem presentes
+          if (response.data.length > 0) {
+            const { status, token } = response.data[0];
+            if (status && token) {
+              localStorage.setItem("auth_token", token);
+            }
+          }
+          
           return response.data; // Retorna os dados para verificação imediata
         } else {
           setError('Formato de dados inválido');
