@@ -1,10 +1,14 @@
 
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Wheat, Clock } from 'lucide-react';
 import MobileNav from './MobileNav';
 import UserMenu from './UserMenu';
 
 const Header = () => {
+  const location = useLocation();
+  const isGrupoPage = location.pathname === '/grupo';
+  
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('pt-BR', {
     hour: '2-digit',
     minute: '2-digit',
@@ -43,12 +47,12 @@ const Header = () => {
             <Wheat size={32} className="text-industrial-warning" />
             <h1 className="text-2xl font-bold">AgroFlow Sistemas</h1>
           </div>
-          <MobileNav />
+          {!isGrupoPage && <MobileNav />}
         </div>
         
         <div className="flex flex-col md:flex-row items-center gap-6">          
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <Clock size={20} />
               <span className="font-medium">{currentTime}</span>
             </div>
