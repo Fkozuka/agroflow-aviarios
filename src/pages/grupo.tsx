@@ -61,7 +61,7 @@ const Grupo = () => {
             return (
               <Card
                 key={sistema.id}
-                className="cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-95 hover:scale-105 border-2 border-gray-200 hover:border-industrial-primary touch-manipulation"
+                className="cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-95 hover:scale-105 border-2 border-gray-200 touch-manipulation"
                 onClick={() => handleCardClick(sistema.path)}
               >
                 <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
