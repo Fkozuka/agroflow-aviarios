@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Wheat, Clock } from 'lucide-react';
 import MobileNav from './MobileNav';
 import UserMenu from './UserMenu';
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isGrupoPage = location.pathname === '/grupo';
   
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('pt-BR', {
@@ -43,7 +44,10 @@ const Header = () => {
     <header className="bg-industrial-primary text-white p-4 shadow-md">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         <div className="flex w-full md:w-auto justify-between items-center mb-3 md:mb-0">
-          <div className="flex items-center gap-3">
+          <div 
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/grupo')}
+          >
             <Wheat size={32} className="text-industrial-warning" />
             <h1 className="text-2xl font-bold">AgroFlow Sistemas</h1>
           </div>
