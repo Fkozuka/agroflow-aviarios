@@ -1,8 +1,39 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
+import SecadorCard from '@/components/secadorCard';
+import { useCardSecador } from '@/hooks/hooksSecador/useCardSecador';
+import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
+import { Wind } from 'lucide-react';
 
 const HomeSecador = () => {
+  const { dadosCardSecador, loading, error, carregarCardSecador } = useCardSecador();
+  const { dadosConfigSecador, loading: loadingConfig, carregarConfigSecador } = useConfigSecador();
+
+  useEffect(() => {
+    carregarCardSecador();
+    carregarConfigSecador();
+  }, [carregarCardSecador, carregarConfigSecador]);
+
+  // Agrupa os secadores por unidade
+  const secadoresPorUnidade = useMemo(() => {
+    const agrupados: Record<string, typeof dadosCardSecador> = {};
+    
+    dadosCardSecador.forEach((secador) => {
+      if (!agrupados[secador.unidade]) {
+        agrupados[secador.unidade] = [];
+      }
+      agrupados[secador.unidade].push(secador);
+    });
+    
+    // Ordena os secadores dentro de cada unidade por idSecador
+    Object.keys(agrupados).forEach((unidade) => {
+      agrupados[unidade].sort((a, b) => parseInt(a.idSecador) - parseInt(b.idSecador));
+    });
+    
+    return agrupados;
+  }, [dadosCardSecador]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -10,9 +41,39 @@ const HomeSecador = () => {
         <Sidebar />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="container mx-auto">
-            <h2 className="text-2xl font-bold text-industrial-primary mb-6">Secadores</h2>
-            
-            {/* Conteúdo da página será adicionado aqui */}
+            {loading || loadingConfig ? (
+              <div className="text-center py-8">
+                <p className="text-industrial-gray">Carregando dados...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-industrial-error">Erro: {error}</p>
+              </div>
+            ) : Object.keys(secadoresPorUnidade).length > 0 ? (
+              Object.entries(secadoresPorUnidade).map(([unidade, secadores]) => (
+                <div key={unidade} className="mb-8">
+                  <h2 className="text-2xl font-bold text-industrial-primary mb-6">
+                    Secadores - {unidade}
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {secadores.map((secador) => (
+                      <SecadorCard
+                        key={secador.idSecador}
+                        title={secador.secador}
+                        value1={secador.tempEntrada ?? 'N/A'}
+                        value2={secador.umidadeSaida ?? 'N/A'}
+                        description1="Temperatura Entrada"
+                        description2="Umidade Saída"
+                        unit1="°C"
+                        unit2="%"
+                        status={secador.status || '0'}
+                        icon={<Wind size={40} />}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : null}
           </div>
         </main>
       </div>

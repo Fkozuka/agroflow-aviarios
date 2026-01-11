@@ -56,8 +56,6 @@ export const useConfigSecador = () => {
         }
       );
       
-      console.log('useConfigSecador - Resposta da API:', response.data);
-      
       // A API retorna um array com objetos dentro
       if (Array.isArray(response.data) && response.data.length > 0) {
         const dadosValidos: dadosConfigSecador[] = [];
