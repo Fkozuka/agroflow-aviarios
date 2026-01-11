@@ -1,20 +1,11 @@
 
 import React, { useEffect, useMemo } from 'react';
-import { Gauge, Database, Package, BarChart, Settings, List, Factory } from 'lucide-react';
+import { List, Factory } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-
-const sidebarItems = [
-  { name: 'Dashboard', icon: Gauge, path: '/' },
-  { name: 'Produção', icon: Factory, path: '/producao' },
-  { name: 'Estoque de Sementes', icon: Package, path: '/estoque' },
-  { name: 'Armazenamento', icon: Database, path: '/armazenamento' },
-  { name: 'Relatórios', icon: BarChart, path: '/relatorios' },
-  { name: 'Configurações', icon: Settings, path: '/configuracoes' },
-];
 
 const Sidebar = () => {
   const { statusCLP, loading, error } = useStatusCLP();
@@ -42,12 +33,6 @@ const Sidebar = () => {
     return agrupados;
   }, [dadosConfigSecador]);
   
-  const handleNavigation = (path: string, e: React.MouseEvent) => {
-    if (path === '#') {
-      e.preventDefault();
-    }
-  };
-
   // Determina o status baseado nos dados do CLP
   const getSystemStatus = () => {
     if (loading) {
@@ -87,60 +72,41 @@ const Sidebar = () => {
     <div className="bg-industrial-primary text-white w-64 flex-shrink-0 hidden md:block">
       <div className="p-4 h-full flex flex-col overflow-y-auto">
         <div className="space-y-1">
-          {sidebarItems.map((item) => (
-            <Button
-              key={item.name}
-              variant="ghost"
-              className="w-full justify-start text-white hover:bg-industrial-primary/80 hover:text-white"
-              asChild
-            >
-              {item.path !== '#' ? (
-                <Link to={item.path} onClick={(e) => handleNavigation(item.path, e)}>
-                  <item.icon className="mr-2 h-5 w-5" />
-                  {item.name}
-                </Link>
-              ) : (
-                <a href={item.path} onClick={(e) => handleNavigation(item.path, e)}>
-                  <item.icon className="mr-2 h-5 w-5" />
-                  {item.name}
-                </a>
-              )}
-            </Button>
-          ))}
-          
           {/* Secadores agrupados por unidade */}
-          {Object.keys(secadoresPorUnidade).length > 0 && (
-            <div className="mt-4 pt-4 border-t border-white/20">
-              <Accordion type="single" collapsible className="w-full">
-                {Object.entries(secadoresPorUnidade).map(([unidade, secadores]) => (
-                  <AccordionItem key={unidade} value={unidade} className="border-none">
-                    <AccordionTrigger className="text-white hover:no-underline py-2 px-0">
-                      <div className="flex items-center">
-                        <Factory className="mr-2 h-4 w-4" />
-                        <span className="text-sm font-medium">{unidade}</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-2">
-                      <div className="space-y-1 pl-6">
-                        {secadores.map((item) => (
-                          <Button
-                            key={`${item.unidade}-${item.secador}`}
-                            variant="ghost"
-                            size="sm"
-                            className="w-full justify-start text-white/80 hover:bg-industrial-primary/80 hover:text-white text-xs"
-                            asChild
-                          >
-                            <Link to={`/secador/${item.secador}`}>
-                              <List className="mr-2 h-3 w-3" />
-                              {item.secador}
-                            </Link>
-                          </Button>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+          {Object.keys(secadoresPorUnidade).length > 0 ? (
+            <Accordion type="single" collapsible className="w-full">
+              {Object.entries(secadoresPorUnidade).map(([unidade, secadores]) => (
+                <AccordionItem key={unidade} value={unidade} className="border-none">
+                  <AccordionTrigger className="text-white hover:no-underline py-2 px-0">
+                    <div className="flex items-center">
+                      <Factory className="mr-2 h-4 w-4" />
+                      <span className="text-sm font-medium">{unidade}</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-2">
+                    <div className="space-y-1 pl-6">
+                      {secadores.map((item) => (
+                        <Button
+                          key={`${item.unidade}-${item.secador}`}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start text-white/80 hover:bg-industrial-primary/80 hover:text-white text-xs"
+                          asChild
+                        >
+                          <Link to={`/secador/${item.secador}`}>
+                            <List className="mr-2 h-3 w-3" />
+                            {item.secador}
+                          </Link>
+                        </Button>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          ) : (
+            <div className="text-white/60 text-sm text-center py-4">
+              {loadingSecador ? 'Carregando secadores...' : 'Nenhum secador encontrado'}
             </div>
           )}
         </div>

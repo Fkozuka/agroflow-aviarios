@@ -45,7 +45,7 @@ export const useConfigSecador = () => {
       const authHeaders = getAuthHeaders();
 
       const response = await axios.post(
-        `https://api-system.agroflowsystems.com.br//secador/config`,
+        `https://api-system.agroflowsystems.com.br/secador/config`,
         {
           empresa: empresa
         },
@@ -55,6 +55,8 @@ export const useConfigSecador = () => {
           }
         }
       );
+      
+      console.log('useConfigSecador - Resposta da API:', response.data);
       
       // A API retorna um array com objetos dentro
       if (Array.isArray(response.data) && response.data.length > 0) {
