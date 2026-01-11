@@ -9,6 +9,7 @@ import Producao from "./pages/Producao";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Grupo from "./pages/grupo";
+import HomeSecador from "./pages/pagesSecador/homeSecador";
 import { AuthProvider } from "./hooks/use-auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -45,6 +46,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Grupo />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/secadores" 
+              element={
+                <ProtectedRoute>
+                  <HomeSecador />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/secador/:secadorId" 
+              element={
+                <ProtectedRoute>
+                  <HomeSecador />
                 </ProtectedRoute>
               } 
             />

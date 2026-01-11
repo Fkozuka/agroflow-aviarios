@@ -7,6 +7,7 @@ interface dadosGrupo {
   secador: boolean;
   termometria: boolean;
   aviario: boolean;
+  empresa: string;
 }
 
 /**
@@ -55,9 +56,15 @@ export const useGrupo = () => {
         if (
           typeof dados.secador === 'boolean' &&
           typeof dados.termometria === 'boolean' &&
-          typeof dados.aviario === 'boolean'
+          typeof dados.aviario === 'boolean' &&
+          typeof dados.empresa === 'string'
         ) {
           setDadosGrupo(dados);
+          
+          // Salva a empresa no localStorage para ser usada em outras queries
+          if (dados.empresa) {
+            localStorage.setItem("empresa", dados.empresa);
+          }
         } else {
           setError('Formato de dados inválido');
         }

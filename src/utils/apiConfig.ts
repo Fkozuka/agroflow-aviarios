@@ -61,3 +61,11 @@ export const getAuthHeaders = (): Record<string, string> => {
   return {};
 };
 
+/**
+ * Função utilitária para obter a empresa do usuário
+ * @returns A empresa do usuário ou null se não existir
+ */
+export const getEmpresa = (): string | null => {
+  return localStorage.getItem('empresa');
+};
+

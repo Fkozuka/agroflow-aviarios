@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("userName");
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("empresa");
     setIsAuthenticated(false);
     setUserName(null);
     navigate("/login");

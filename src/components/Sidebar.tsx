@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Gauge, Database, Package, BarChart, Settings, List, Factory } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
+import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const sidebarItems = [
   { name: 'Dashboard', icon: Gauge, path: '/' },
@@ -16,6 +18,29 @@ const sidebarItems = [
 
 const Sidebar = () => {
   const { statusCLP, loading, error } = useStatusCLP();
+  const { dadosConfigSecador, loading: loadingSecador, carregarConfigSecador } = useConfigSecador();
+  
+  useEffect(() => {
+    carregarConfigSecador();
+  }, [carregarConfigSecador]);
+
+  // Agrupa os secadores por unidade
+  const secadoresPorUnidade = useMemo(() => {
+    const agrupados: Record<string, Array<{ secador: string; unidade: string; empresa: string }>> = {};
+    
+    dadosConfigSecador.forEach((item) => {
+      if (!agrupados[item.unidade]) {
+        agrupados[item.unidade] = [];
+      }
+      agrupados[item.unidade].push({
+        secador: item.secador,
+        unidade: item.unidade,
+        empresa: item.empresa
+      });
+    });
+    
+    return agrupados;
+  }, [dadosConfigSecador]);
   
   const handleNavigation = (path: string, e: React.MouseEvent) => {
     if (path === '#') {
@@ -60,7 +85,7 @@ const Sidebar = () => {
 
   return (
     <div className="bg-industrial-primary text-white w-64 flex-shrink-0 hidden md:block">
-      <div className="p-4 h-full flex flex-col">
+      <div className="p-4 h-full flex flex-col overflow-y-auto">
         <div className="space-y-1">
           {sidebarItems.map((item) => (
             <Button
@@ -82,6 +107,42 @@ const Sidebar = () => {
               )}
             </Button>
           ))}
+          
+          {/* Secadores agrupados por unidade */}
+          {Object.keys(secadoresPorUnidade).length > 0 && (
+            <div className="mt-4 pt-4 border-t border-white/20">
+              <Accordion type="single" collapsible className="w-full">
+                {Object.entries(secadoresPorUnidade).map(([unidade, secadores]) => (
+                  <AccordionItem key={unidade} value={unidade} className="border-none">
+                    <AccordionTrigger className="text-white hover:no-underline py-2 px-0">
+                      <div className="flex items-center">
+                        <Factory className="mr-2 h-4 w-4" />
+                        <span className="text-sm font-medium">{unidade}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-2">
+                      <div className="space-y-1 pl-6">
+                        {secadores.map((item) => (
+                          <Button
+                            key={`${item.unidade}-${item.secador}`}
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-white/80 hover:bg-industrial-primary/80 hover:text-white text-xs"
+                            asChild
+                          >
+                            <Link to={`/secador/${item.secador}`}>
+                              <List className="mr-2 h-3 w-3" />
+                              {item.secador}
+                            </Link>
+                          </Button>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          )}
         </div>
         
         <div className="mt-auto p-4 bg-industrial-dark/30 rounded-lg">
