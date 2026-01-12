@@ -1,6 +1,7 @@
 import React from 'react';
 import { useScreenSize, type ScreenSize } from '@/hooks/use-mobile';
-import secadorImage from '@/assets/images/secador_agroflowsystems.png';
+import secadorImage from '@/assets/images/secador-com-fundo.png';
+import secadorImageMobile from '@/assets/images/secador-com-fundo-mobile.png';
 
 interface SecadorCardProps {
   secadorId: number;
@@ -105,19 +106,23 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
   status, 
   imagemUrl 
 }) => {
+  const screenSize = useScreenSize();
+  
+  // Seleciona a imagem baseado no tamanho da tela
+  const getImage = () => {
+    if (imagemUrl) return imagemUrl;
+    return screenSize === 'mobile' ? secadorImageMobile : secadorImage;
+  };
+
   return (
     <div className="relative w-full min-h-[700px] md:min-h-[700px] pb-8">
-      {/* Card principal - fundo branco com bordas arredondadas */}
-      <div className="absolute bg-white rounded-[15px] w-full h-full min-h-[700px] md:min-h-[700px]" />
-      
-      {/* Imagem do secador - Centralizada e Responsiva */}
-      <div className="absolute w-[90%] max-w-[465px] h-[500px] md:h-[600px] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <img 
-          src={imagemUrl || secadorImage} 
-          alt={`Secador ${nome}`}
-          className="w-full h-full object-contain"
-        />
-      </div>
+      {/* Card principal - imagem como fundo */}
+      <div 
+        className="absolute rounded-[15px] w-full h-full min-h-[700px] md:min-h-[700px] bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url(${getImage()})`
+        }}
+      />
 
       {/* Grupos de sensores posicionados responsivamente */}
       <SensorGroup
@@ -126,52 +131,52 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
         unidade="%"
         posicaoDesktopMax={{ x: 43.7, y: 5 }}
         posicaoDesktopMedium={{ x: 33.7, y: 5 }}
-        posicaoMobile={{ x: 5, y: 15 }}
+        posicaoMobile={{ x: 5, y: 5 }}
       />
 
       <SensorGroup
         titulo="Temp. Saída"
         valor={dados.temperatura_saida}
         unidade="°C"
-        posicaoDesktopMax={{ x: 35.7, y: 25.7 }}
-        posicaoDesktopMedium={{ x: 25.7, y: 25.7 }}
-        posicaoMobile={{ x: 5, y: 30 }}
+        posicaoDesktopMax={{ x: 35.7, y: 17.7 }}
+        posicaoDesktopMedium={{ x: 25, y: 15 }}
+        posicaoMobile={{ x: 5, y: 15 }}
       />
 
       <SensorGroup
         titulo="Temp. Entrada"
         valor={dados.temperatura_entrada}
         unidade="°C"
-        posicaoDesktopMax={{ x: 50.7, y: 50 }}
-        posicaoDesktopMedium={{ x: 40.7, y: 50 }}
-        posicaoMobile={{ x: 50, y: 40 }}
+        posicaoDesktopMax={{ x: 55, y: 50 }}
+        posicaoDesktopMedium={{ x: 58, y: 50 }}
+        posicaoMobile={{ x: 50, y: 55 }}
       />
 
       <SensorGroup
         titulo="Press. Queimador"
         valor={dados.pressao_queimador}
         unidade="bar"
-        posicaoDesktopMax={{ x: 62.3, y: 50.5 }}
-        posicaoDesktopMedium={{ x: 65.3, y: 50.5 }}
-        posicaoMobile={{ x: 55, y: 50 }}
+        posicaoDesktopMax={{ x: 65, y: 55 }}
+        posicaoDesktopMedium={{ x: 80, y: 50.5 }}
+        posicaoMobile={{ x: 55, y: 65 }}
       />
 
       <SensorGroup
         titulo="Temp. Queimador"
         valor={dados.temperatura_queimador}
         unidade="°C"
-        posicaoDesktopMax={{ x: 62.3, y: 66.3 }}
-        posicaoDesktopMedium={{ x: 65.3, y: 66.3 }}
-        posicaoMobile={{ x: 55, y: 60 }}
+        posicaoDesktopMax={{ x: 74, y: 66.3 }}
+        posicaoDesktopMedium={{ x: 80, y: 66.3 }}
+        posicaoMobile={{ x: 55, y: 72 }}
       />
 
       <SensorGroup
         titulo="Umid. Saída"
         valor={dados.umidade_saida}
         unidade="%"
-        posicaoDesktopMax={{ x: 43.7, y: 79.8 }}
+        posicaoDesktopMax={{ x: 43.7, y: 85 }}
         posicaoDesktopMedium={{ x: 33.7, y: 79.8 }}
-        posicaoMobile={{ x: 5, y: 70 }}
+        posicaoMobile={{ x: 5, y: 80 }}
       />
 
       <SensorGroup
@@ -180,16 +185,16 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
         unidade="ton/h"
         posicaoDesktopMax={{ x: 54.9, y: 5 }}
         posicaoDesktopMedium={{ x: 54.9, y: 5 }}
-        posicaoMobile={{ x: 55, y: 15 }}
+        posicaoMobile={{ x: 55, y: 5 }}
       />
 
       <SensorGroup
         titulo="Tonelada Saída"
         valor={dados.tonelada_saida}
         unidade="ton/h"
-        posicaoDesktopMax={{ x: 54.9, y: 79.8 }}
+        posicaoDesktopMax={{ x: 54.9, y: 85 }}
         posicaoDesktopMedium={{ x: 54.9, y: 79.8 }}
-        posicaoMobile={{ x: 55, y: 70 }}
+        posicaoMobile={{ x: 55, y: 80 }}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Menu, List, Factory } from 'lucide-react';
+import { Menu, List, Factory, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Link } from 'react-router-dom';
@@ -81,6 +81,20 @@ const MobileNav: React.FC = () => {
         <SheetContent side="left" className="bg-industrial-primary border-r-industrial-primary p-0 w-64">
           <div className="p-4 h-full flex flex-col text-white overflow-y-auto">
             <div className="space-y-1">
+              {/* Botão Home */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-white/80 hover:bg-industrial-primary/80 hover:text-white py-2 px-0"
+                asChild
+                onClick={() => setOpen(false)}
+              >
+                <Link to="/grupo" className="flex items-center w-full">
+                  <Home className="mr-2 h-4 w-4" />
+                  <span className="text-sm font-medium">Home</span>
+                </Link>
+              </Button>
+              
               {/* Secadores agrupados por unidade */}
               {Object.keys(secadoresPorUnidade).length > 0 ? (
                 <Accordion type="single" collapsible className="w-full">

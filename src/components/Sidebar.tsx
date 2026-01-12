@@ -1,6 +1,6 @@
 
 import React, { useEffect, useMemo } from 'react';
-import { List, Factory } from 'lucide-react';
+import { List, Factory, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
@@ -72,6 +72,19 @@ const Sidebar = () => {
     <div className="bg-industrial-primary text-white w-64 flex-shrink-0 hidden md:block">
       <div className="p-4 h-full flex flex-col overflow-y-auto">
         <div className="space-y-1">
+          {/* Botão Home */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-white/80 hover:bg-industrial-primary/80 hover:text-white py-2 px-0"
+            asChild
+          >
+            <Link to="/grupo" className="flex items-center w-full">
+              <Home className="mr-2 h-4 w-4" />
+              <span className="text-sm font-medium">Home</span>
+            </Link>
+          </Button>
+          
           {/* Secadores agrupados por unidade */}
           {Object.keys(secadoresPorUnidade).length > 0 ? (
             <Accordion type="single" collapsible className="w-full">
