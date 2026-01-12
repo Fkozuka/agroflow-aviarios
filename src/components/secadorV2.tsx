@@ -85,15 +85,6 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
   status, 
   imagemUrl 
 }) => {
-  // Garante que o caminho da imagem seja absoluto (funciona na Vercel)
-  const getImageUrl = (url: string | undefined) => {
-    if (!url) return '/secador_copacol.png';
-    // Se já começa com /, retorna como está
-    if (url.startsWith('/')) return url;
-    // Caso contrário, adiciona /
-    return '/' + url;
-  };
-
   return (
     <div className="relative w-full min-h-[700px] md:min-h-[700px] pb-8">
       {/* Card principal - fundo branco com bordas arredondadas */}
@@ -102,10 +93,9 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
       {/* Imagem do secador - Centralizada e Responsiva */}
       <div className="absolute w-[90%] max-w-[465px] h-[500px] md:h-[600px] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <img 
-          src={getImageUrl(imagemUrl)} 
+          src={imagemUrl || "/secador_copacol.png"} 
           alt={`Secador ${nome}`}
           className="w-full h-full object-contain"
-          loading="lazy"
         />
       </div>
 
