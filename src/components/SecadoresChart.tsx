@@ -8,6 +8,7 @@ import { CalendarIcon, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useScreenSize } from '@/hooks/use-mobile';
 
 interface SecadorDados {
   id: number;
@@ -46,6 +47,10 @@ const SecadoresChart: React.FC<SecadoresChartProps> = ({
   setDateFinal,
   setSelectedParameter
 }) => {
+  // Detecta o tamanho da tela
+  const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile';
+  
   // Estado para múltiplos parâmetros selecionados
   const [selectedParameters, setSelectedParameters] = useState<string[]>([selectedParameter]);
 
@@ -218,75 +223,96 @@ const SecadoresChart: React.FC<SecadoresChartProps> = ({
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className={isMobile ? "p-4" : ""}>
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <CardTitle>Histórico de Dados</CardTitle>
-            <div className="flex items-center gap-2">
+          {/* Header com título e botões */}
+          <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'}`}>
+            <CardTitle className={isMobile ? "text-lg" : ""}>Histórico de Dados</CardTitle>
+            <div className={`flex ${isMobile ? 'flex-col gap-2 w-full' : 'items-center gap-2'}`}>
               <Button
                 variant="outline"
                 onClick={handleExportReport}
-                className="flex items-center gap-2"
+                className={`flex items-center gap-2 ${isMobile ? 'w-full justify-center' : ''}`}
+                size={isMobile ? "sm" : "default"}
               >
                 <Download className="h-4 w-4" />
-                Exportar CSV
+                {isMobile ? "Exportar" : "Exportar CSV"}
               </Button>
               
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-[180px] justify-start text-left font-normal">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateInicial ? format(dateInicial, 'dd/MM/yyyy', { locale: ptBR }) : 'Data Inicial'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateInicial}
-                    onSelect={(date) => setDateInicial(date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              
-              <span className="text-sm text-gray-500">até</span>
-              
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-[180px] justify-start text-left font-normal">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFinal ? format(dateFinal, 'dd/MM/yyyy', { locale: ptBR }) : 'Data Final'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateFinal}
-                    onSelect={(date) => setDateFinal(date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className={`flex ${isMobile ? 'flex-col gap-2 w-full' : 'items-center gap-2'}`}>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className={`${isMobile ? 'w-full' : 'w-[180px]'} justify-start text-left font-normal`}
+                      size={isMobile ? "sm" : "default"}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateInicial ? format(dateInicial, 'dd/MM/yyyy', { locale: ptBR }) : 'Data Inicial'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={dateInicial}
+                      onSelect={(date) => setDateInicial(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                
+                {!isMobile && <span className="text-sm text-gray-500">até</span>}
+                
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className={`${isMobile ? 'w-full' : 'w-[180px]'} justify-start text-left font-normal`}
+                      size={isMobile ? "sm" : "default"}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateFinal ? format(dateFinal, 'dd/MM/yyyy', { locale: ptBR }) : 'Data Final'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={dateFinal}
+                      onSelect={(date) => setDateFinal(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </div>
           
           {/* Seleção múltipla de parâmetros */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-gray-700">Parâmetros:</span>
-            <div className="flex flex-wrap gap-4 pl-4">
+            <span className={`font-medium text-gray-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>Parâmetros:</span>
+            <div className={`flex flex-wrap ${isMobile ? 'gap-2' : 'gap-4'} ${isMobile ? 'pl-0' : 'pl-4'}`}>
               {Object.entries(parameterLabels).map(([key, label]) => (
-                <div key={key} className="flex items-center space-x-2">
+                <div key={key} className={`flex items-center ${isMobile ? 'space-x-1' : 'space-x-2'}`}>
                   <Checkbox
                     id={`param-${key}`}
                     checked={selectedParameters.includes(key)}
                     onCheckedChange={() => handleParameterToggle(key)}
+                    className={isMobile ? "h-3 w-3" : ""}
                   />
                   <label
                     htmlFor={`param-${key}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    className={`font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer ${isMobile ? 'text-xs' : 'text-sm'}`}
                     style={{ color: parameterColors[key as keyof typeof parameterColors] }}
                   >
-                    {label} ({parameterUnits[key as keyof typeof parameterUnits]})
+                    {isMobile ? (
+                      <span>
+                        {label.split(' ')[0]} ({parameterUnits[key as keyof typeof parameterUnits]})
+                      </span>
+                    ) : (
+                      <span>
+                        {label} ({parameterUnits[key as keyof typeof parameterUnits]})
+                      </span>
+                    )}
                   </label>
                 </div>
               ))}
@@ -294,24 +320,45 @@ const SecadoresChart: React.FC<SecadoresChartProps> = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="h-[400px] w-full">
+      <CardContent className={isMobile ? "p-4" : ""}>
+        <div className={`w-full ${isMobile ? 'h-[300px]' : 'h-[400px]'}`}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
+            <LineChart data={data} margin={isMobile ? { top: 5, right: 5, left: -20, bottom: 5 } : { top: 5, right: 30, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
+              <XAxis 
+                dataKey="time" 
+                tick={{ fontSize: isMobile ? 10 : 12 }}
+                interval={isMobile ? "preserveStartEnd" : 0}
+                angle={isMobile ? -45 : 0}
+                textAnchor={isMobile ? "end" : "middle"}
+                height={isMobile ? 60 : 30}
+              />
+              <YAxis 
+                tick={{ fontSize: isMobile ? 10 : 12 }}
+                width={isMobile ? 40 : 60}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  fontSize: isMobile ? '12px' : '14px',
+                  padding: isMobile ? '8px' : '12px'
+                }}
+              />
+              <Legend 
+                wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}
+                iconSize={isMobile ? 10 : 12}
+                verticalAlign={isMobile ? "bottom" : "top"}
+                height={isMobile ? 60 : 36}
+              />
               {selectedParameters.map((param) => (
                 <Line
                   key={param}
                   type="natural"
                   dataKey={param}
-                  name={`${parameterLabels[param as keyof typeof parameterLabels]} (${parameterUnits[param as keyof typeof parameterUnits]})`}
+                  name={isMobile ? `${parameterLabels[param as keyof typeof parameterLabels].split(' ')[0]} (${parameterUnits[param as keyof typeof parameterUnits]})` : `${parameterLabels[param as keyof typeof parameterLabels]} (${parameterUnits[param as keyof typeof parameterUnits]})`}
                   stroke={parameterColors[param as keyof typeof parameterColors]}
-                  strokeWidth={2}
-                  activeDot={{ r: 6 }}
+                  strokeWidth={isMobile ? 1.5 : 2}
+                  activeDot={{ r: isMobile ? 4 : 6 }}
+                  dot={false}
                 />
               ))}
             </LineChart>
