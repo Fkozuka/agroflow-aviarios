@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SecadorV2 from '@/components/secadorV2';
+import SecadoresChart from '@/components/SecadoresChart';
 import { useCardSecador } from '@/hooks/hooksSecador/useCardSecador';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
+import { useDadosSecador } from '@/hooks/hooksSecador/usedadosSecador';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -14,11 +16,24 @@ const PainelSecador = () => {
   
   const { dadosCardSecador, loading, error, carregarCardSecador } = useCardSecador();
   const { dadosConfigSecador, loading: loadingConfig, carregarConfigSecador } = useConfigSecador();
+  const { dadosHistorico, loading: loadingHistorico, carregarDadosHistorico } = useDadosSecador();
+
+  // Estados para o gráfico
+  const [dateInicial, setDateInicial] = useState<Date | undefined>(undefined);
+  const [dateFinal, setDateFinal] = useState<Date | undefined>(undefined);
+  const [selectedParameter, setSelectedParameter] = useState<string>('umidade_entrada');
 
   useEffect(() => {
     carregarCardSecador();
     carregarConfigSecador();
   }, [carregarCardSecador, carregarConfigSecador]);
+
+  // Carrega dados históricos quando o secador ou datas mudarem
+  useEffect(() => {
+    if (secadorId) {
+      carregarDadosHistorico(secadorId, dateInicial, dateFinal);
+    }
+  }, [secadorId, dateInicial, dateFinal, carregarDadosHistorico]);
 
   // Encontra o secador específico pelo nome
   const secadorAtual = useMemo(() => {
@@ -177,6 +192,21 @@ const PainelSecador = () => {
 
             {/* Componente SecadorV2 com dados dinâmicos */}
             {dadosSecador && <SecadorV2 {...dadosSecador} />}
+
+            {/* Componente SecadoresChart com dados históricos */}
+            <div className="mt-6">
+              <SecadoresChart
+                chartData={dadosHistorico}
+                selectedDryer={secadorId || ''}
+                secadorNome={secadorAtual?.secador || ''}
+                selectedParameter={selectedParameter}
+                dateInicial={dateInicial}
+                dateFinal={dateFinal}
+                setDateInicial={setDateInicial}
+                setDateFinal={setDateFinal}
+                setSelectedParameter={setSelectedParameter}
+              />
+            </div>
           </div>
         </main>
       </div>

@@ -56,7 +56,6 @@ const Producao = () => {
         await carregarDadosListaProducao();
       }, 1000);
     } catch (error) {
-      console.error('Erro ao atualizar lotes:', error);
       toast({
         title: "Erro ao atualizar lotes",
         description: "Erro ao conectar com o servidor.",

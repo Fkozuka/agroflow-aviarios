@@ -7,6 +7,7 @@ interface AuthContextType {
   userName: string | null;
   login: (username: string, password: string) => boolean;
   logout: () => void;
+  setAuthenticated: (isAuth: boolean, username?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,6 +40,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return false;
   };
 
+  const setAuthenticated = (isAuth: boolean, username?: string) => {
+    setIsAuthenticated(isAuth);
+    if (username) {
+      setUserName(username);
+    } else {
+      setUserName(null);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("userName");
@@ -46,11 +56,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("empresa");
     setIsAuthenticated(false);
     setUserName(null);
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userName, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userName, login, logout, setAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLogin } from "@/hooks/uselogin";
+import { useAuth } from "@/hooks/use-auth";
 
 const formSchema = z.object({
   username: z.string().min(3, {
@@ -31,6 +32,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { dadosAutenticacao, loading, error, autenticarLogin } = useLogin();
+  const { isAuthenticated, setAuthenticated } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,22 +42,33 @@ const Login = () => {
     },
   });
 
+  // Redireciona se já estiver autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/grupo", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const authData = await autenticarLogin(values.username, values.password);
       
       // Verifica se a autenticação foi bem-sucedida usando os dados retornados diretamente
       if (authData && authData.length > 0 && authData[0].status === true && authData[0].token) {
-        // Salva o estado de autenticação
+        // Salva o estado de autenticação no localStorage
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("userName", values.username);
+        
+        // Atualiza o contexto de autenticação imediatamente
+        setAuthenticated(true, values.username);
 
         toast({
           title: "Login bem-sucedido",
           description: "Bem-vindo ao AgroFlow Sistemas!",
         });
         
-        navigate("/grupo");
+        // Navega para a página principal
+        navigate("/grupo", { replace: true });
       } else {
         toast({
           title: "Erro no login",
