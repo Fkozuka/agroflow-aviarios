@@ -1,5 +1,6 @@
 import React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import secadorImage from '@/assets/images/secador_agroflowsystems.png';
 
 interface SecadorCardProps {
   secadorId: number;
@@ -93,7 +94,7 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
       {/* Imagem do secador - Centralizada e Responsiva */}
       <div className="absolute w-[90%] max-w-[465px] h-[500px] md:h-[600px] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <img 
-          src={imagemUrl || "/secador_agroflowsystems.png"} 
+          src={imagemUrl || secadorImage} 
           alt={`Secador ${nome}`}
           className="w-full h-full object-contain"
         />
