@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Grupo from "./pages/grupo";
 import HomeSecador from "./pages/pagesSecador/homeSecador";
+import PainelSecador from "./pages/pagesSecador/painelSecador";
 import { AuthProvider } from "./hooks/use-auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -61,7 +62,7 @@ const App = () => (
               path="/secador/:secadorId" 
               element={
                 <ProtectedRoute>
-                  <HomeSecador />
+                  <PainelSecador />
                 </ProtectedRoute>
               } 
             />

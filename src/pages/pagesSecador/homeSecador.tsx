@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SecadorCard from '@/components/secadorCard';
@@ -7,6 +8,7 @@ import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
 import { Wind } from 'lucide-react';
 
 const HomeSecador = () => {
+  const navigate = useNavigate();
   const { dadosCardSecador, loading, error, carregarCardSecador } = useCardSecador();
   const { dadosConfigSecador, loading: loadingConfig, carregarConfigSecador } = useConfigSecador();
 
@@ -57,18 +59,23 @@ const HomeSecador = () => {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {secadores.map((secador) => (
-                      <SecadorCard
+                      <div
                         key={secador.idSecador}
-                        title={secador.secador}
-                        value1={secador.tempEntrada ?? 'N/A'}
-                        value2={secador.umidadeSaida ?? 'N/A'}
-                        description1="Temperatura Entrada"
-                        description2="Umidade Saída"
-                        unit1="°C"
-                        unit2="%"
-                        status={secador.status || '0'}
-                        icon={<Wind size={40} />}
-                      />
+                        onClick={() => navigate(`/secador/${secador.secador}`)}
+                        className="cursor-pointer transition-transform hover:scale-105"
+                      >
+                        <SecadorCard
+                          title={secador.secador}
+                          value1={secador.tempEntrada ?? 'N/A'}
+                          value2={secador.umidadeSaida ?? 'N/A'}
+                          description1="Temperatura Entrada"
+                          description2="Umidade Saída"
+                          unit1="°C"
+                          unit2="%"
+                          status={secador.status || '0'}
+                          icon={<Wind size={40} />}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
