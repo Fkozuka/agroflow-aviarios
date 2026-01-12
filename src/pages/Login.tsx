@@ -148,7 +148,7 @@ const Login = () => {
         
         <div className="mt-4 md:mt-6 text-center text-xs md:text-sm text-gray-500">
           <p className="hidden md:block">Sistema de monitoramento</p>
-          <p>v1.3.3</p>
+          <p>v1.3.4</p>
         </div>
       </div>
     </div>
