@@ -85,17 +85,23 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
   status, 
   imagemUrl 
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="relative w-full min-h-[700px] md:min-h-[700px] pb-8">
+    <div className="relative w-full min-h-[600px] md:min-h-[700px] pb-8">
       {/* Card principal - fundo branco com bordas arredondadas */}
-      <div className="absolute bg-white rounded-[15px] w-full h-full min-h-[700px] md:min-h-[700px]" />
+      <div className="absolute bg-white rounded-[15px] w-full h-full min-h-[600px] md:min-h-[700px]" />
       
       {/* Imagem do secador - Centralizada e Responsiva */}
-      <div className="absolute w-[90%] max-w-[465px] h-[500px] md:h-[600px] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div 
+        className={`${isMobile ? 'relative w-full px-4 pt-4 z-10' : 'absolute w-[90%] max-w-[465px] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10'}`}
+        style={isMobile ? {} : { height: '600px' }}
+      >
         <img 
           src={imagemUrl || "/secador_copacol.png"} 
           alt={`Secador ${nome}`}
-          className="w-full h-full object-contain"
+          className={`w-full ${isMobile ? 'h-auto max-h-[400px]' : 'h-full'} object-contain`}
+          style={{ display: 'block' }}
         />
       </div>
 
