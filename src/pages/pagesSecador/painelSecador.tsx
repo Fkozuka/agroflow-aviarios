@@ -68,7 +68,6 @@ const PainelSecador = () => {
         tonelada_saida: parseValue(secadorAtual.tonSaida),
       },
       status: getStatus(),
-      imagemUrl: '/secador_agroflowsystems.png',
     };
   }, [secadorAtual]);
 
