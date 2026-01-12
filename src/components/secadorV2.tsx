@@ -1,5 +1,5 @@
 import React from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useScreenSize, type ScreenSize } from '@/hooks/use-mobile';
 import secadorImage from '@/assets/images/secador_agroflowsystems.png';
 
 interface SecadorCardProps {
@@ -23,7 +23,11 @@ interface SensorGroupProps {
   titulo: string;
   valor: number | string;
   unidade: string;
-  posicaoDesktop: {
+  posicaoDesktopMax: {
+    x: number;
+    y: number;
+  };
+  posicaoDesktopMedium: {
     x: number;
     y: number;
   };
@@ -37,11 +41,26 @@ const SensorGroup: React.FC<SensorGroupProps> = ({
   titulo, 
   valor, 
   unidade, 
-  posicaoDesktop,
+  posicaoDesktopMax,
+  posicaoDesktopMedium,
   posicaoMobile
 }) => {
-  const isMobile = useIsMobile();
-  const posicao = isMobile ? posicaoMobile : posicaoDesktop;
+  const screenSize = useScreenSize();
+  
+  const getPosicao = (): { x: number; y: number } => {
+    switch (screenSize) {
+      case 'mobile':
+        return posicaoMobile;
+      case 'desktop-medium':
+        return posicaoDesktopMedium;
+      case 'desktop-max':
+        return posicaoDesktopMax;
+      default:
+        return posicaoDesktopMax;
+    }
+  };
+  
+  const posicao = getPosicao();
 
   return (
     <div 
@@ -105,7 +124,8 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
         titulo="Umid. Entrada"
         valor={dados.umidade_entrada}
         unidade="%"
-        posicaoDesktop={{ x: 43.7, y: 5 }}
+        posicaoDesktopMax={{ x: 43.7, y: 5 }}
+        posicaoDesktopMedium={{ x: 33.7, y: 5 }}
         posicaoMobile={{ x: 5, y: 15 }}
       />
 
@@ -113,7 +133,8 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
         titulo="Temp. Saída"
         valor={dados.temperatura_saida}
         unidade="°C"
-        posicaoDesktop={{ x: 35.7, y: 25.7 }}
+        posicaoDesktopMax={{ x: 35.7, y: 25.7 }}
+        posicaoDesktopMedium={{ x: 25.7, y: 25.7 }}
         posicaoMobile={{ x: 5, y: 30 }}
       />
 
@@ -121,7 +142,8 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
         titulo="Temp. Entrada"
         valor={dados.temperatura_entrada}
         unidade="°C"
-        posicaoDesktop={{ x: 50.7, y: 50 }}
+        posicaoDesktopMax={{ x: 50.7, y: 50 }}
+        posicaoDesktopMedium={{ x: 40.7, y: 50 }}
         posicaoMobile={{ x: 50, y: 40 }}
       />
 
@@ -129,39 +151,44 @@ const SecadorCard: React.FC<SecadorCardProps> = ({
         titulo="Press. Queimador"
         valor={dados.pressao_queimador}
         unidade="bar"
-        posicaoDesktop={{ x: 62.3, y: 50.5 }}
-        posicaoMobile={{ x: 60, y: 50 }}
+        posicaoDesktopMax={{ x: 62.3, y: 50.5 }}
+        posicaoDesktopMedium={{ x: 65.3, y: 50.5 }}
+        posicaoMobile={{ x: 55, y: 50 }}
       />
 
       <SensorGroup
         titulo="Temp. Queimador"
         valor={dados.temperatura_queimador}
         unidade="°C"
-        posicaoDesktop={{ x: 62.3, y: 66.3 }}
-        posicaoMobile={{ x: 60, y: 60 }}
+        posicaoDesktopMax={{ x: 62.3, y: 66.3 }}
+        posicaoDesktopMedium={{ x: 65.3, y: 66.3 }}
+        posicaoMobile={{ x: 55, y: 60 }}
       />
 
       <SensorGroup
         titulo="Umid. Saída"
         valor={dados.umidade_saida}
         unidade="%"
-        posicaoDesktop={{ x: 43.7, y: 79.8 }}
-        posicaoMobile={{ x: 20, y: 70 }}
+        posicaoDesktopMax={{ x: 43.7, y: 79.8 }}
+        posicaoDesktopMedium={{ x: 33.7, y: 79.8 }}
+        posicaoMobile={{ x: 5, y: 70 }}
       />
 
       <SensorGroup
         titulo="Tonelada Entrada"
         valor={dados.tonelada_entrada}
         unidade="ton/h"
-        posicaoDesktop={{ x: 54.9, y: 5 }}
-        posicaoMobile={{ x: 40, y: 15 }}
+        posicaoDesktopMax={{ x: 54.9, y: 5 }}
+        posicaoDesktopMedium={{ x: 54.9, y: 5 }}
+        posicaoMobile={{ x: 55, y: 15 }}
       />
 
       <SensorGroup
         titulo="Tonelada Saída"
         valor={dados.tonelada_saida}
         unidade="ton/h"
-        posicaoDesktop={{ x: 54.9, y: 79.8 }}
+        posicaoDesktopMax={{ x: 54.9, y: 79.8 }}
+        posicaoDesktopMedium={{ x: 54.9, y: 79.8 }}
         posicaoMobile={{ x: 55, y: 70 }}
       />
     </div>
