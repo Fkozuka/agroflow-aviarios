@@ -4,7 +4,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CalendarIcon, Download } from 'lucide-react';
+import { CalendarIcon, Download, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -34,6 +34,8 @@ interface SecadoresChartProps {
   setDateInicial: (date: Date | undefined) => void;
   setDateFinal: (date: Date | undefined) => void;
   setSelectedParameter: (parameter: string) => void;
+  onFilter?: (secador: string, dataInicial?: Date, dataFinal?: Date) => void;
+  loading?: boolean;
 }
 
 const SecadoresChart: React.FC<SecadoresChartProps> = ({
@@ -45,7 +47,9 @@ const SecadoresChart: React.FC<SecadoresChartProps> = ({
   dateFinal,
   setDateInicial,
   setDateFinal,
-  setSelectedParameter
+  setSelectedParameter,
+  onFilter,
+  loading = false
 }) => {
   // Detecta o tamanho da tela
   const screenSize = useScreenSize();
@@ -166,6 +170,12 @@ const SecadoresChart: React.FC<SecadoresChartProps> = ({
     });
   };
 
+  const handleFilter = () => {
+    if (onFilter) {
+      onFilter(selectedDryer, dateInicial, dateFinal);
+    }
+  };
+
   const handleExportReport = () => {
     if (!chartData || chartData.length === 0) {
       alert('Não há dados para exportar');
@@ -229,16 +239,6 @@ const SecadoresChart: React.FC<SecadoresChartProps> = ({
           <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'}`}>
             <CardTitle className={isMobile ? "text-lg" : ""}>Histórico de Dados</CardTitle>
             <div className={`flex ${isMobile ? 'flex-col gap-2 w-full' : 'items-center gap-2'}`}>
-              <Button
-                variant="outline"
-                onClick={handleExportReport}
-                className={`flex items-center gap-2 ${isMobile ? 'w-full justify-center' : ''}`}
-                size={isMobile ? "sm" : "default"}
-              >
-                <Download className="h-4 w-4" />
-                {isMobile ? "Exportar" : "Exportar CSV"}
-              </Button>
-              
               <div className={`flex ${isMobile ? 'flex-col gap-2 w-full' : 'items-center gap-2'}`}>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -284,6 +284,28 @@ const SecadoresChart: React.FC<SecadoresChartProps> = ({
                   </PopoverContent>
                 </Popover>
               </div>
+              
+              {onFilter && (
+                <Button
+                  onClick={handleFilter}
+                  disabled={loading}
+                  className={`flex items-center gap-2 ${isMobile ? 'w-full justify-center' : ''} bg-industrial-primary hover:bg-industrial-primary/90`}
+                  size={isMobile ? "sm" : "default"}
+                >
+                  <Filter className="h-4 w-4" />
+                  {loading ? (isMobile ? "Filtrando..." : "Filtrando...") : (isMobile ? "Filtrar" : "Filtrar")}
+                </Button>
+              )}
+              
+              <Button
+                variant="outline"
+                onClick={handleExportReport}
+                className={`flex items-center gap-2 ${isMobile ? 'w-full justify-center' : ''}`}
+                size={isMobile ? "sm" : "default"}
+              >
+                <Download className="h-4 w-4" />
+                {isMobile ? "Exportar" : "Exportar CSV"}
+              </Button>
             </div>
           </div>
           

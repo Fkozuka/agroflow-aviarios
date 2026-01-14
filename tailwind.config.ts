@@ -79,6 +79,12 @@ export default {
           gray: '#6B7280',
           dark: '#1E293B',
         },
+        // Status colors for metrics
+        status: {
+          normal: '#4CAF50', // verde (success)
+          warning: '#FFC857', // amarelo (warning)
+          critical: '#F44336', // vermelho (error)
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

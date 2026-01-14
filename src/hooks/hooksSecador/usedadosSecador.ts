@@ -55,15 +55,27 @@ export const useDadosSecador = () => {
         
         body.dataInicial = format(inicioDia, 'yyyy-MM-dd HH:mm:ss');
         body.dataFinal = format(fimDia, 'yyyy-MM-dd HH:mm:ss');
-      } else {
-        // Se houver pelo menos uma data selecionada, usa as datas fornecidas
-        if (dataInicial) {
-          body.dataInicial = format(dataInicial, 'yyyy-MM-dd HH:mm:ss');
-        }
+      } else if (dataInicial && dataFinal) {
+        // Se ambas as datas estão selecionadas, usa início do dia inicial e fim do dia final
+        const inicioDia = startOfDay(dataInicial);
+        const fimDia = endOfDay(dataFinal);
         
-        if (dataFinal) {
-          body.dataFinal = format(dataFinal, 'yyyy-MM-dd HH:mm:ss');
-        }
+        body.dataInicial = format(inicioDia, 'yyyy-MM-dd HH:mm:ss');
+        body.dataFinal = format(fimDia, 'yyyy-MM-dd HH:mm:ss');
+      } else if (dataInicial) {
+        // Se apenas data inicial está selecionada, usa o dia completo da data inicial
+        const inicioDia = startOfDay(dataInicial);
+        const fimDia = endOfDay(dataInicial);
+        
+        body.dataInicial = format(inicioDia, 'yyyy-MM-dd HH:mm:ss');
+        body.dataFinal = format(fimDia, 'yyyy-MM-dd HH:mm:ss');
+      } else if (dataFinal) {
+        // Se apenas data final está selecionada, usa o dia completo da data final
+        const inicioDia = startOfDay(dataFinal);
+        const fimDia = endOfDay(dataFinal);
+        
+        body.dataInicial = format(inicioDia, 'yyyy-MM-dd HH:mm:ss');
+        body.dataFinal = format(fimDia, 'yyyy-MM-dd HH:mm:ss');
       }
 
       const response = await axios.post(
