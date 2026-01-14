@@ -4,7 +4,7 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import { DryerMonitorCard } from '@/components/monitorSecadorCard';
 import SecadoresChart from '@/components/SecadoresChart';
-import { useCardSecador } from '@/hooks/hooksSecador/useCardSecador';
+import { useCardSecador } from '@/hooks/hooksSecador/useOnlineSecador';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
 import { useDadosSecador } from '@/hooks/hooksSecador/usedadosSecador';
 import { ArrowLeft } from 'lucide-react';
@@ -182,6 +182,7 @@ const PainelSecador = () => {
                 nome={dadosSecador.nome}
                 dados={dadosSecador.dados}
                 status={dadosSecador.status}
+                config={configSecador}
                 lastUpdate={secadorAtual?.timeUpdate ? `Atualizado: ${new Date(secadorAtual.timeUpdate).toLocaleString('pt-BR')}` : undefined}
               />
             )}

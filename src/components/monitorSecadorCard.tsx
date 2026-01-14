@@ -16,6 +16,35 @@ export interface DryerMetric {
   };
 }
 
+// Interface para campos de configuração
+interface ConfigCampo {
+  ativo: boolean;
+  min: string | null;
+  max: string | null;
+}
+
+interface ConfigCampoMax {
+  ativo: boolean;
+  max: string | null;
+}
+
+// Interface para configuração do secador
+interface SecadorConfig {
+  empresa: string;
+  unidade: string;
+  secador: string;
+  capacidadeNominalTPH: string;
+  tempEntrada: ConfigCampo;
+  tempMeio: ConfigCampo;
+  tempSaida: ConfigCampo;
+  tempQueimador: ConfigCampo;
+  pressaoQueimador: ConfigCampo;
+  umidadeEntrada: ConfigCampo;
+  umidadeSaida: ConfigCampo;
+  tonEntrada: ConfigCampoMax;
+  tonSaida: ConfigCampoMax;
+}
+
 interface DryerMonitorCardProps {
   secadorId: number;
   nome: string;
@@ -30,52 +59,139 @@ interface DryerMonitorCardProps {
     tonelada_saida: number;
   };
   status: 'ativo' | 'inativo' | 'manutencao';
+  config?: SecadorConfig | null;
   imagemUrl?: string;
   lastUpdate?: string;
   className?: string;
 }
 
-// Função para determinar o status baseado no valor
-const getMetricStatus = (id: string, value: number): MetricStatus => {
+// Função auxiliar para converter string para number
+const parseConfigValue = (value: string | null): number | null => {
+  if (value === null || value === '') return null;
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? null : parsed;
+};
+
+// Função para determinar o status baseado no valor e configuração
+const getMetricStatus = (id: string, value: number, config?: SecadorConfig | null): MetricStatus => {
+  // Se não houver configuração, usa valores padrão
+  if (!config) {
+    switch (id) {
+      case 'umidade_entrada':
+        if (value > 30) return 'critical';
+        if (value > 20) return 'warning';
+        return 'normal';
+      case 'umidade_saida':
+        if (value > 20) return 'critical';
+        if (value > 15) return 'warning';
+        return 'normal';
+      case 'temperatura_queimador':
+        if (value > 700) return 'critical';
+        if (value > 650) return 'warning';
+        return 'normal';
+      case 'pressao_queimador':
+        if (value < -2) return 'critical';
+        if (value < -1.5) return 'warning';
+        return 'normal';
+      case 'temperatura_entrada':
+        if (value > 110) return 'critical';
+        if (value > 100) return 'warning';
+        return 'normal';
+      case 'temperatura_saida':
+        if (value > 80) return 'critical';
+        if (value > 70) return 'warning';
+        return 'normal';
+      default:
+        return 'normal';
+    }
+  }
+
+  // Usa a configuração do hook
+  let campo: ConfigCampo | ConfigCampoMax | undefined;
+  
   switch (id) {
     case 'umidade_entrada':
-      if (value > 30) return 'critical';
-      if (value > 20) return 'warning';
-      return 'normal';
+      campo = config.umidadeEntrada;
+      break;
     case 'umidade_saida':
-      if (value > 20) return 'critical';
-      if (value > 15) return 'warning';
-      return 'normal';
+      campo = config.umidadeSaida;
+      break;
     case 'temperatura_queimador':
-      if (value > 700) return 'critical';
-      if (value > 650) return 'warning';
-      return 'normal';
+      campo = config.tempQueimador;
+      break;
     case 'pressao_queimador':
-      if (value < -2) return 'critical';
-      if (value < -1.5) return 'warning';
-      return 'normal';
+      campo = config.pressaoQueimador;
+      break;
     case 'temperatura_entrada':
-      if (value > 110) return 'critical';
-      if (value > 100) return 'warning';
-      return 'normal';
+      campo = config.tempEntrada;
+      break;
     case 'temperatura_saida':
-      if (value > 80) return 'critical';
-      if (value > 70) return 'warning';
-      return 'normal';
+      campo = config.tempSaida;
+      break;
     default:
       return 'normal';
   }
+
+  if (!campo || !campo.ativo) {
+    return 'normal';
+  }
+
+  // Para campos com min e max
+  if ('min' in campo) {
+    const min = parseConfigValue(campo.min);
+    const max = parseConfigValue(campo.max);
+
+    // Verifica se está fora dos limites (critical)
+    if (min !== null && value < min) {
+      return 'critical';
+    }
+    if (max !== null && value > max) {
+      return 'critical';
+    }
+
+    // Zona de warning: próximo aos limites (10% da faixa de valores)
+    if (min !== null && max !== null) {
+      const faixa = max - min;
+      const margemWarning = faixa * 0.1;
+      
+      // Warning se está próximo do mínimo
+      if (value < min + margemWarning) {
+        return 'warning';
+      }
+      // Warning se está próximo do máximo
+      if (value > max - margemWarning) {
+        return 'warning';
+      }
+    } else if (min !== null) {
+      // Se só tem mínimo, warning se está 10% acima do mínimo
+      const margemWarning = Math.abs(min) * 0.1;
+      if (value < min + margemWarning) {
+        return 'warning';
+      }
+    } else if (max !== null) {
+      // Se só tem máximo, warning se está 10% abaixo do máximo
+      const margemWarning = Math.abs(max) * 0.1;
+      if (value > max - margemWarning) {
+        return 'warning';
+      }
+    }
+  }
+
+  return 'normal';
 };
 
 // Função para converter dados do secador em métricas
-const convertDadosToMetrics = (dados: DryerMonitorCardProps['dados']): DryerMetric[] => {
+const convertDadosToMetrics = (
+  dados: DryerMonitorCardProps['dados'],
+  config?: SecadorConfig | null
+): DryerMetric[] => {
   return [
     {
       id: "umidade_entrada",
       label: "Umid. Entrada",
       value: dados.umidade_entrada,
       unit: "%",
-      status: getMetricStatus('umidade_entrada', dados.umidade_entrada),
+      status: getMetricStatus('umidade_entrada', dados.umidade_entrada, config),
       position: { top: "2%", left: "47%" },
     },
     {
@@ -83,7 +199,7 @@ const convertDadosToMetrics = (dados: DryerMonitorCardProps['dados']): DryerMetr
       label: "Umid. Saída",
       value: dados.umidade_saida,
       unit: "%",
-      status: getMetricStatus('umidade_saida', dados.umidade_saida),
+      status: getMetricStatus('umidade_saida', dados.umidade_saida, config),
       position: { bottom: "2%", left: "47%" },
     },
     {
@@ -91,7 +207,7 @@ const convertDadosToMetrics = (dados: DryerMonitorCardProps['dados']): DryerMetr
       label: "Temp. Entrada",
       value: dados.temperatura_entrada,
       unit: "°C",
-      status: getMetricStatus('temperatura_entrada', dados.temperatura_entrada),
+      status: getMetricStatus('temperatura_entrada', dados.temperatura_entrada, config),
       position: { top: "52%", right: "35%" },
     },
     {
@@ -99,7 +215,7 @@ const convertDadosToMetrics = (dados: DryerMonitorCardProps['dados']): DryerMetr
       label: "Temp. Saída",
       value: dados.temperatura_saida,
       unit: "°C",
-      status: getMetricStatus('temperatura_saida', dados.temperatura_saida),
+      status: getMetricStatus('temperatura_saida', dados.temperatura_saida, config),
       position: { top: "15%", left: "37%" },
     },
     {
@@ -107,7 +223,7 @@ const convertDadosToMetrics = (dados: DryerMonitorCardProps['dados']): DryerMetr
       label: "Temp. Queimador",
       value: dados.temperatura_queimador,
       unit: "°C",
-      status: getMetricStatus('temperatura_queimador', dados.temperatura_queimador),
+      status: getMetricStatus('temperatura_queimador', dados.temperatura_queimador, config),
       position: { top: "68%", right: "17%" },
     },
     {
@@ -115,7 +231,7 @@ const convertDadosToMetrics = (dados: DryerMonitorCardProps['dados']): DryerMetr
       label: "Press. Queimador",
       value: dados.pressao_queimador,
       unit: "bar",
-      status: getMetricStatus('pressao_queimador', dados.pressao_queimador),
+      status: getMetricStatus('pressao_queimador', dados.pressao_queimador, config),
       position: { top: "55%", right: "20%" },
     },
     {
@@ -142,11 +258,12 @@ export function DryerMonitorCard({
   nome,
   dados,
   status,
+  config,
   imagemUrl,
   lastUpdate,
   className,
 }: DryerMonitorCardProps) {
-  const metrics = convertDadosToMetrics(dados);
+  const metrics = convertDadosToMetrics(dados, config);
   
   // Determina a cor do status baseado no status do secador
   const getStatusColor = () => {
@@ -310,7 +427,7 @@ export function DryerMonitorCard({
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Capacidade: <span className="font-semibold text-foreground">{dados.tonelada_entrada.toFixed(1)} ton/h</span>
+          Capacidade: <span className="font-semibold text-foreground">{config?.capacidadeNominalTPH || '0'} ton/h</span>
         </p>
       </div>
     </div>

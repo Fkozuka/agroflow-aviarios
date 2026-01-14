@@ -2,20 +2,34 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { getAuthHeaders, getEmpresa } from '@/utils/apiConfig';
 
+//Interface para campos de configuração com min/max
+interface ConfigCampo {
+  ativo: boolean;
+  min: string | null;
+  max: string | null;
+}
+
+//Interface para campos de configuração apenas com max (tonEntrada, tonSaida)
+interface ConfigCampoMax {
+  ativo: boolean;
+  max: string | null;
+}
+
 //Interface para dados de configuração do secador
 interface dadosConfigSecador {
-  empresa : string;
-  unidade : string;
-  secador : string;
-  tempEntrada : boolean;
-  tempMeio : boolean;
-  tempSaida : boolean;
-  pressaoQueimador : boolean;
-  tempQueimador : boolean;
-  umidadeEntrada : boolean;
-  umidadeSaida : boolean;
-  tonEntrada : boolean;
-  tonSaida : boolean;
+  empresa: string;
+  unidade: string;
+  secador: string;
+  capacidadeNominalTPH: string;
+  tempEntrada: ConfigCampo;
+  tempMeio: ConfigCampo;
+  tempSaida: ConfigCampo;
+  tempQueimador: ConfigCampo;
+  pressaoQueimador: ConfigCampo;
+  umidadeEntrada: ConfigCampo;
+  umidadeSaida: ConfigCampo;
+  tonEntrada: ConfigCampoMax;
+  tonSaida: ConfigCampoMax;
 }
 
 /**
@@ -56,9 +70,32 @@ export const useConfigSecador = () => {
         }
       );
       
+      console.log('Dados recebidos da API (useConfigSecador):', response.data);
+      
       // A API retorna um array com objetos dentro
       if (Array.isArray(response.data) && response.data.length > 0) {
         const dadosValidos: dadosConfigSecador[] = [];
+        
+        // Função auxiliar para validar ConfigCampo
+        const isValidConfigCampo = (campo: any): campo is ConfigCampo => {
+          return (
+            campo &&
+            typeof campo === 'object' &&
+            typeof campo.ativo === 'boolean' &&
+            (campo.min === null || typeof campo.min === 'string') &&
+            (campo.max === null || typeof campo.max === 'string')
+          );
+        };
+
+        // Função auxiliar para validar ConfigCampoMax
+        const isValidConfigCampoMax = (campo: any): campo is ConfigCampoMax => {
+          return (
+            campo &&
+            typeof campo === 'object' &&
+            typeof campo.ativo === 'boolean' &&
+            (campo.max === null || typeof campo.max === 'string')
+          );
+        };
         
         // Valida cada item do array
         for (const dados of response.data) {
@@ -66,17 +103,34 @@ export const useConfigSecador = () => {
             typeof dados.empresa === 'string' &&
             typeof dados.unidade === 'string' &&
             typeof dados.secador === 'string' &&
-            typeof dados.tempEntrada === 'boolean' &&
-            typeof dados.tempMeio === 'boolean' &&
-            typeof dados.tempSaida === 'boolean' &&
-            typeof dados.pressaoQueimador === 'boolean' &&
-            typeof dados.tempQueimador === 'boolean' &&
-            typeof dados.umidadeEntrada === 'boolean' &&
-            typeof dados.umidadeSaida === 'boolean' &&
-            typeof dados.tonEntrada === 'boolean' &&
-            typeof dados.tonSaida === 'boolean'
+            (typeof dados.capacidadeNominalTPH === 'string' || dados.capacidadeNominalTPH === undefined) &&
+            isValidConfigCampo(dados.tempEntrada) &&
+            isValidConfigCampo(dados.tempMeio) &&
+            isValidConfigCampo(dados.tempSaida) &&
+            isValidConfigCampo(dados.tempQueimador) &&
+            isValidConfigCampo(dados.pressaoQueimador) &&
+            isValidConfigCampo(dados.umidadeEntrada) &&
+            isValidConfigCampo(dados.umidadeSaida) &&
+            isValidConfigCampoMax(dados.tonEntrada) &&
+            isValidConfigCampoMax(dados.tonSaida)
           ) {
-            dadosValidos.push(dados);
+            const dadosConvertidos: dadosConfigSecador = {
+              empresa: dados.empresa,
+              unidade: dados.unidade,
+              secador: dados.secador,
+              capacidadeNominalTPH: dados.capacidadeNominalTPH || '',
+              tempEntrada: dados.tempEntrada,
+              tempMeio: dados.tempMeio,
+              tempSaida: dados.tempSaida,
+              tempQueimador: dados.tempQueimador,
+              pressaoQueimador: dados.pressaoQueimador,
+              umidadeEntrada: dados.umidadeEntrada,
+              umidadeSaida: dados.umidadeSaida,
+              tonEntrada: dados.tonEntrada,
+              tonSaida: dados.tonSaida,
+            };
+            
+            dadosValidos.push(dadosConvertidos);
           }
         }
         

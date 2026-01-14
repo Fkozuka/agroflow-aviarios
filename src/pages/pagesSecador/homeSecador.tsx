@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SecadorCard from '@/components/secadorCard';
-import { useCardSecador } from '@/hooks/hooksSecador/useCardSecador';
+import { useCardSecador } from '@/hooks/hooksSecador/useOnlineSecador';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
 import { Wind } from 'lucide-react';
 
