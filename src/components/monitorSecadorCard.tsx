@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { MetricBadge, MetricStatus } from "./metricBadge";
-import secadorImage from "@/assets/images/secador-com-fundo.png";
+import secadorImage from "@/assets/images/secador-com-fundo-HD.png";
 
 export interface DryerMetric {
   id: string;
