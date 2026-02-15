@@ -5,6 +5,7 @@ import Sidebar from '@/components/Sidebar';
 import SecadorCard from '@/components/secadorCard';
 import { useCardSecador } from '@/hooks/hooksSecador/useCardSecador';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
+import { getSecadorContext } from '@/utils/apiConfig';
 import { Wind } from 'lucide-react';
 
 const HomeSecador = () => {
@@ -12,10 +13,24 @@ const HomeSecador = () => {
   const { dadosCardSecador, loading, error, carregarCardSecador } = useCardSecador();
   const { dadosConfigSecador, loading: loadingConfig, carregarConfigSecador } = useConfigSecador();
 
+  // Ao acionar a página: carrega a config primeiro
   useEffect(() => {
-    carregarCardSecador();
     carregarConfigSecador();
-  }, [carregarCardSecador, carregarConfigSecador]);
+  }, [carregarConfigSecador]);
+
+  // Quando a config estiver pronta, busca os dados dos cards (empresa e unidade do contexto ou do primeiro item)
+  useEffect(() => {
+    if (loadingConfig) return;
+    const context = getSecadorContext();
+    const primeiroItem = dadosConfigSecador[0];
+    const empresa = context?.empresa ?? primeiroItem?.empresa;
+    const unidade = context?.unidade ?? primeiroItem?.unidade;
+    if (empresa && unidade) {
+      carregarCardSecador({ empresa, unidade });
+    } else {
+      carregarCardSecador();
+    }
+  }, [loadingConfig, dadosConfigSecador, carregarCardSecador]);
 
   // Agrupa os secadores por unidade a partir do config (dadosConfigSecador)
   const secadoresPorUnidade = useMemo(() => {
