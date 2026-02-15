@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { setSecadorContext } from '@/utils/apiConfig';
 
 const MobileNav: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -117,7 +118,7 @@ const MobileNav: React.FC = () => {
                               asChild
                               onClick={() => setOpen(false)}
                             >
-                              <Link to={`/secador/${item.secador}`}>
+                              <Link to={`/secador/${item.secador}`} onClick={() => setSecadorContext({ empresa: item.empresa, unidade: item.unidade, secador: item.secador })}>
                                 <List className="mr-2 h-3 w-3" />
                                 {item.secador}
                               </Link>

@@ -54,6 +54,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("userName");
     localStorage.removeItem("auth_token");
     localStorage.removeItem("empresa");
+    localStorage.removeItem("secadorSelecionado");
+    localStorage.removeItem("secadorContext");
     setIsAuthenticated(false);
     setUserName(null);
     navigate("/login", { replace: true });

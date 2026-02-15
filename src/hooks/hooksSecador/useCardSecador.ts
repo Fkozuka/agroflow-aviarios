@@ -1,30 +1,20 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import { getAuthHeaders, getEmpresa, getUnidade, getSecador, getSecadorContext } from '@/utils/apiConfig';
+import { getAuthHeaders, getEmpresa, getUnidade, getSecadorContext } from '@/utils/apiConfig';
 
 /** Parâmetros no mesmo formato do item do Sidebar (empresa, unidade, secador) */
 export interface FiltroSecadorOnline {
   empresa?: string | null;
   unidade?: string | null;
-  secador?: string | null;
 }
 
 //Interface para dados do card do secador
 interface dadosCardSecador {
-  idSecador: string;
   status?: string;
   unidade: string;
   secador: string;
   tempEntrada: string | null;
-  tempMeio: string | null;
-  tempSaida: string | null;
-  pressaoQueimador: string | null;
-  tempQueimador: string | null;
-  umidadeEntrada: string | null;
   umidadeSaida: string | null;
-  tonEntrada: string | null;
-  tonSaida: string | null;
-  timeUpdate?: string;
 }
 
 /**
@@ -42,21 +32,17 @@ export const useCardSecador = () => {
     setLoading(true);
 
     try {
-      // Usa exatamente os mesmos dados do config/Sidebar (dadosConfigSecador): empresa, unidade, secador do mesmo item
-      const context = getSecadorContext();
-      const empresa = filtro?.empresa ?? context?.empresa ?? getEmpresa();
-      const unidade = filtro?.unidade ?? context?.unidade ?? getUnidade();
-      const secador = filtro?.secador ?? context?.secador ?? getSecador() ?? undefined;
+      const empresa = filtro?.empresa ?? getSecadorContext()?.empresa ?? getEmpresa();
+      const unidade = filtro?.unidade ?? getSecadorContext()?.unidade ?? getUnidade();
 
       const authHeaders = getAuthHeaders();
 
       const body: Record<string, string> = {};
       if (empresa) body.empresa = empresa;
       if (unidade) body.unidade = unidade;
-      if (secador) body.secador = secador;
 
       const response = await axios.post(
-        `https://api-system.agroflowsystems.com.br/secador/online`,
+        `https://api-system.agroflowsystems.com.br/secador/card`,
         body,
         {
           headers: {
@@ -77,29 +63,14 @@ export const useCardSecador = () => {
         
         // Processa todos os itens do array
         for (const dados of response.data) {
-          // Valida os dados
-          if (
-            dados.idSecador !== undefined &&
-            typeof dados.unidade === 'string' &&
-            typeof dados.secador === 'string'
-          ) {
+          if (typeof dados.unidade === 'string' && typeof dados.secador === 'string') {
             const dadosConvertidos: dadosCardSecador = {
-              idSecador: String(dados.idSecador),
               status: dados.status !== undefined ? String(dados.status) : undefined,
               unidade: dados.unidade,
               secador: dados.secador,
               tempEntrada: toStringOrNull(dados.tempEntrada),
-              tempMeio: toStringOrNull(dados.tempMeio),
-              tempSaida: toStringOrNull(dados.tempSaida),
-              pressaoQueimador: toStringOrNull(dados.pressaoQueimador),
-              tempQueimador: toStringOrNull(dados.tempQueimador),
-              umidadeEntrada: toStringOrNull(dados.umidadeEntrada),
               umidadeSaida: toStringOrNull(dados.umidadeSaida),
-              tonEntrada: toStringOrNull(dados.tonEntrada),
-              tonSaida: toStringOrNull(dados.tonSaida),
-              timeUpdate: dados.timeUpdate || undefined
             };
-            
             dadosValidos.push(dadosConvertidos);
           }
         }
@@ -113,28 +84,14 @@ export const useCardSecador = () => {
         // Se retornar um objeto único, converte para array
         const dados = response.data;
         
-        if (
-          dados.idSecador !== undefined &&
-          typeof dados.unidade === 'string' &&
-          typeof dados.secador === 'string'
-        ) {
+        if (typeof dados.unidade === 'string' && typeof dados.secador === 'string') {
           const dadosConvertidos: dadosCardSecador = {
-            idSecador: String(dados.idSecador),
             status: dados.status !== undefined ? String(dados.status) : undefined,
             unidade: dados.unidade,
             secador: dados.secador,
             tempEntrada: toStringOrNull(dados.tempEntrada),
-            tempMeio: toStringOrNull(dados.tempMeio),
-            tempSaida: toStringOrNull(dados.tempSaida),
-            pressaoQueimador: toStringOrNull(dados.pressaoQueimador),
-            tempQueimador: toStringOrNull(dados.tempQueimador),
-            umidadeEntrada: toStringOrNull(dados.umidadeEntrada),
             umidadeSaida: toStringOrNull(dados.umidadeSaida),
-            tonEntrada: toStringOrNull(dados.tonEntrada),
-            tonSaida: toStringOrNull(dados.tonSaida),
-            timeUpdate: dados.timeUpdate || undefined
           };
-          
           setDadosCardSecador([dadosConvertidos]);
         } else {
           setError('Formato de dados inválido');
@@ -156,4 +113,3 @@ export const useCardSecador = () => {
     carregarCardSecador
   };
 };
-

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
+import { setSecadorContext } from '@/utils/apiConfig';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const Sidebar = () => {
@@ -106,7 +107,7 @@ const Sidebar = () => {
                           className="w-full justify-start text-white/80 hover:bg-industrial-primary/80 hover:text-white text-xs"
                           asChild
                         >
-                          <Link to={`/secador/${item.secador}`}>
+                          <Link to={`/secador/${item.secador}`} onClick={() => setSecadorContext({ empresa: item.empresa, unidade: item.unidade, secador: item.secador })}>
                             <List className="mr-2 h-3 w-3" />
                             {item.secador}
                           </Link>

@@ -6,6 +6,7 @@ import { DryerMonitorCard } from '@/components/monitorSecadorCard';
 import SecadoresChart from '@/components/SecadoresChart';
 import { useCardSecador } from '@/hooks/hooksSecador/useOnlineSecador';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
+import { setSecadorContext } from '@/utils/apiConfig';
 import { useDadosSecador } from '@/hooks/hooksSecador/usedadosSecador';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,9 +25,20 @@ const PainelSecador = () => {
   const [selectedParameter, setSelectedParameter] = useState<string>('umidade_entrada');
 
   useEffect(() => {
-    carregarCardSecador();
     carregarConfigSecador();
-  }, [carregarCardSecador, carregarConfigSecador]);
+  }, [carregarConfigSecador]);
+
+  // Usa o mesmo item do config (dadosConfigSecador) que o Sidebar para empresa, unidade, secador
+  useEffect(() => {
+    if (!secadorId) return;
+    const itemConfig = dadosConfigSecador.find((c) => c.secador === secadorId);
+    if (itemConfig) {
+      setSecadorContext({ empresa: itemConfig.empresa, unidade: itemConfig.unidade, secador: itemConfig.secador });
+      carregarCardSecador({ empresa: itemConfig.empresa, unidade: itemConfig.unidade, secador: itemConfig.secador });
+    } else {
+      carregarCardSecador({ secador: secadorId });
+    }
+  }, [secadorId, dadosConfigSecador, carregarCardSecador]);
 
   // Carrega dados históricos apenas quando o secador mudar (carregamento inicial)
   useEffect(() => {

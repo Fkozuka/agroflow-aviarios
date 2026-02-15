@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SecadorCard from '@/components/secadorCard';
-import { useCardSecador } from '@/hooks/hooksSecador/useOnlineSecador';
+import { useCardSecador } from '@/hooks/hooksSecador/useCardSecador';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
 import { Wind } from 'lucide-react';
 
@@ -17,24 +17,29 @@ const HomeSecador = () => {
     carregarConfigSecador();
   }, [carregarCardSecador, carregarConfigSecador]);
 
-  // Agrupa os secadores por unidade
+  // Agrupa os secadores por unidade a partir do config (dadosConfigSecador)
   const secadoresPorUnidade = useMemo(() => {
-    const agrupados: Record<string, typeof dadosCardSecador> = {};
-    
-    dadosCardSecador.forEach((secador) => {
-      if (!agrupados[secador.unidade]) {
-        agrupados[secador.unidade] = [];
+    const agrupados: Record<string, (typeof dadosConfigSecador)[number][]> = {};
+    dadosConfigSecador.forEach((item) => {
+      if (!agrupados[item.unidade]) {
+        agrupados[item.unidade] = [];
       }
-      agrupados[secador.unidade].push(secador);
+      agrupados[item.unidade].push(item);
     });
-    
-    // Ordena os secadores dentro de cada unidade por idSecador
-    Object.keys(agrupados).forEach((unidade) => {
-      agrupados[unidade].sort((a, b) => parseInt(a.idSecador) - parseInt(b.idSecador));
-    });
-    
     return agrupados;
-  }, [dadosCardSecador]);
+  }, [dadosConfigSecador]);
+
+  // Dados ao vivo (dadosCardSecador) para preencher value1, value2 e status quando disponíveis
+  const getDadosCardPorSecador = (nomeSecador: string) =>
+    dadosCardSecador.find((c) => c.secador === nomeSecador);
+
+  useEffect(() => {
+    console.log('[HomeSecador] Dados que estão chegando:', {
+      dadosCardSecador,
+      dadosConfigSecador,
+      secadoresPorUnidade,
+    });
+  }, [dadosCardSecador, dadosConfigSecador, secadoresPorUnidade]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,31 +57,34 @@ const HomeSecador = () => {
                 <p className="text-industrial-error">Erro: {error}</p>
               </div>
             ) : Object.keys(secadoresPorUnidade).length > 0 ? (
-              Object.entries(secadoresPorUnidade).map(([unidade, secadores]) => (
+              Object.entries(secadoresPorUnidade).map(([unidade, itensConfig]) => (
                 <div key={unidade} className="mb-8">
                   <h2 className="text-2xl font-bold text-industrial-primary mb-6">
                     Secadores - {unidade}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {secadores.map((secador) => (
-                      <div
-                        key={secador.idSecador}
-                        onClick={() => navigate(`/secador/${secador.secador}`)}
-                        className="cursor-pointer transition-transform hover:scale-105"
-                      >
-                        <SecadorCard
-                          title={secador.secador}
-                          value1={secador.tempEntrada ?? 'N/A'}
-                          value2={secador.umidadeSaida ?? 'N/A'}
-                          description1="Temperatura Entrada"
-                          description2="Umidade Saída"
-                          unit1="°C"
-                          unit2="%"
-                          status={secador.status || '0'}
-                          icon={<Wind size={40} />}
-                        />
-                      </div>
-                    ))}
+                    {itensConfig.map((itemConfig) => {
+                      const dadosCard = getDadosCardPorSecador(itemConfig.secador);
+                      return (
+                        <div
+                          key={`${itemConfig.unidade}-${itemConfig.secador}`}
+                          onClick={() => navigate(`/secador/${itemConfig.secador}`)}
+                          className="cursor-pointer transition-transform hover:scale-105"
+                        >
+                          <SecadorCard
+                            title={itemConfig.secador}
+                            value1={dadosCard?.tempEntrada ?? itemConfig.tempEntrada?.max ?? 'N/A'}
+                            value2={dadosCard?.umidadeSaida ?? itemConfig.umidadeSaida?.max ?? 'N/A'}
+                            description1="Temperatura Entrada"
+                            description2="Umidade Saída"
+                            unit1="°C"
+                            unit2="%"
+                            status={dadosCard?.status ?? '0'}
+                            icon={<Wind size={40} />}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))
@@ -89,4 +97,3 @@ const HomeSecador = () => {
 };
 
 export default HomeSecador;
-

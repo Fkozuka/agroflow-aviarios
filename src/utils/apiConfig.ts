@@ -69,3 +69,61 @@ export const getEmpresa = (): string | null => {
   return localStorage.getItem('empresa');
 };
 
+/**
+ * Função utilitária para obter a unidade do usuário (nome ou id)
+ * @returns A unidade do usuário ou null se não existir
+ */
+export const getUnidade = (): string | null => {
+  return localStorage.getItem('unidadeNome') || localStorage.getItem('unidade');
+};
+
+const SECADOR_SELECIONADO_KEY = 'secadorSelecionado';
+const SECADOR_CONTEXT_KEY = 'secadorContext';
+
+/** Contexto do secador no mesmo formato do item do Sidebar (empresa, unidade, secador) */
+export interface SecadorContext {
+  empresa: string;
+  unidade: string;
+  secador: string;
+}
+
+/**
+ * Função utilitária para obter o secador selecionado (último usado na sidebar/página)
+ * @returns O nome do secador selecionado ou null se não existir
+ */
+export const getSecador = (): string | null => {
+  return localStorage.getItem(SECADOR_SELECIONADO_KEY);
+};
+
+/**
+ * Retorna o contexto completo do secador (empresa, unidade, secador) no mesmo formato do Sidebar.
+ * Usado para enviar os mesmos parâmetros que o item do Sidebar na API.
+ */
+export const getSecadorContext = (): SecadorContext | null => {
+  try {
+    const raw = localStorage.getItem(SECADOR_CONTEXT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as SecadorContext;
+    if (parsed?.empresa && parsed?.unidade && parsed?.secador) return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Persiste o secador selecionado (usado ao navegar para um secador ou selecionar no sidebar)
+ */
+export const setSecador = (secador: string): void => {
+  localStorage.setItem(SECADOR_SELECIONADO_KEY, secador);
+};
+
+/**
+ * Persiste o contexto completo do secador (empresa, unidade, secador) no mesmo formato do Sidebar.
+ * Assim o useOnlineSecador envia os mesmos parâmetros que o item do Sidebar.
+ */
+export const setSecadorContext = (context: SecadorContext): void => {
+  localStorage.setItem(SECADOR_SELECIONADO_KEY, context.secador);
+  localStorage.setItem(SECADOR_CONTEXT_KEY, JSON.stringify(context));
+};
+
