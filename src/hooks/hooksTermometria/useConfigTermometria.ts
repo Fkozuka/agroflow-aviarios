@@ -83,57 +83,69 @@ export const useConfigTermometria = () => {
         }
       );
             
-      // A API retorna um array com objetos dentro
-      if (Array.isArray(response.data) && response.data.length > 0) {
+      // A API pode retornar array direto ou objeto com payload (ex: { payload: [...] })
+      const rawData = response.data;
+      const dataArray = Array.isArray(rawData)
+        ? rawData
+        : rawData?.payload && Array.isArray(rawData.payload)
+          ? rawData.payload
+          : [];
+
+      if (dataArray.length > 0) {
         const dadosValidos: dadosConfigTermometria[] = [];
-        
-        // Função auxiliar para validar Pendulos
+
+        // Função auxiliar para validar Pendulos (aceita number | null)
         const isValidPendulos = (pendulos: any): pendulos is Pendulos => {
           if (!pendulos || typeof pendulos !== 'object') return false;
-          
-          // Valida se tem as propriedades pendulo1 até pendulo20
           for (let i = 1; i <= 20; i++) {
             const key = `pendulo${i}`;
             if (!(key in pendulos)) return false;
             const value = pendulos[key];
-            if (value !== null && typeof value !== 'number') return false;
+            if (value !== null && value !== undefined && typeof value !== 'number') return false;
           }
-          
           return true;
         };
-        
-        // Valida cada item do array
-        for (const dados of response.data) {
+
+        const toNumber = (v: any): number => {
+          if (v == null) return 0;
+          if (typeof v === 'number' && !Number.isNaN(v)) return v;
+          const n = Number(v);
+          return Number.isNaN(n) ? 0 : n;
+        };
+        const toString = (v: any): string => (v != null ? String(v) : '');
+
+        for (const dados of dataArray) {
+          // Aceita campos no root ou dentro de config (API retorna config: { empresa, unidade, silo, ... })
+          const c = dados?.config != null && typeof dados.config === 'object' ? dados.config : {};
+          const empresa = dados?.empresa ?? c?.empresa;
+          const unidade = dados?.unidade ?? c?.unidade;
+          const silo = dados?.silo ?? c?.silo;
+          const tipo = dados?.tipo ?? c?.tipo;
           if (
-            dados.config &&
-            typeof dados.config === 'object' &&
-            typeof dados.empresa === 'string' &&
-            typeof dados.unidade === 'string' &&
-            typeof dados.silo === 'string' &&
-            typeof dados.tipo === 'string' &&
-            typeof dados.capacidade === 'string' &&
-            typeof dados.numsensores === 'number' &&
-            typeof dados.numpendulos === 'number' &&
-            typeof dados.numaeradores === 'number' &&
+            dados != null &&
+            typeof dados === 'object' &&
+            typeof empresa === 'string' &&
+            typeof unidade === 'string' &&
+            typeof silo === 'string' &&
+            typeof tipo === 'string' &&
             isValidPendulos(dados.pendulos)
           ) {
             const dadosConvertidos: dadosConfigTermometria = {
-              config: dados.config,
-              empresa: dados.empresa,
-              unidade: dados.unidade,
-              silo: dados.silo,
-              tipo: dados.tipo,
-              capacidade: dados.capacidade,
-              numsensores: dados.numsensores,
-              numpendulos: dados.numpendulos,
-              numaeradores: dados.numaeradores,
+              config: dados.config != null && typeof dados.config === 'object' ? dados.config : {},
+              empresa: String(empresa),
+              unidade: String(unidade),
+              silo: String(silo),
+              tipo: String(tipo),
+              capacidade: toString(dados.capacidade ?? c?.capacidade),
+              numsensores: toNumber(dados.numsensores ?? c?.numsensores),
+              numpendulos: toNumber(dados.numpendulos ?? c?.numpendulos),
+              numaeradores: toNumber(dados.numaeradores ?? c?.numaeradores),
               pendulos: dados.pendulos,
             };
-            
             dadosValidos.push(dadosConvertidos);
           }
         }
-        
+
         if (dadosValidos.length > 0) {
           setDadosConfigTermometria(dadosValidos);
         } else {
