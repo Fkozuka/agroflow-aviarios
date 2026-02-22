@@ -63,7 +63,6 @@ export const useOnlineTermometria = () => {
       );
 
       const raw = response.data;
-      console.log('[useOnlineTermometria] Resposta bruta da API:', raw);
 
       // API pode retornar array direto (204 itens) ou objeto { payload: [...] }
       const payload: unknown[] = Array.isArray(raw)
@@ -71,7 +70,6 @@ export const useOnlineTermometria = () => {
         : (raw && typeof raw === 'object' && 'payload' in raw && Array.isArray((raw as ResponseOnlineTermometria).payload))
           ? (raw as ResponseOnlineTermometria).payload
           : [];
-      console.log('[useOnlineTermometria] Payload:', payload?.length, 'itens', payload?.length ? payload[0] : '');
 
       const toNumber = (v: unknown): number => {
         if (v == null) return 0;
@@ -106,8 +104,6 @@ export const useOnlineTermometria = () => {
           });
         }
       }
-
-      console.log('[useOnlineTermometria] Leituras normalizadas:', dadosValidos.length, 'itens', dadosValidos.length ? dadosValidos[0] : '');
 
       setDadosOnlineTermometria(dadosValidos);
       if (payload.length > 0 && dadosValidos.length === 0) {

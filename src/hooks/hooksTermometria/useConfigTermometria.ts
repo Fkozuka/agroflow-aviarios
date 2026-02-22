@@ -2,12 +2,12 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { getAuthHeaders, getEmpresa } from '@/utils/apiConfig';
 
-//Interface para o objeto de configuração (estrutura genérica)
+// Interface para o objeto de configuração (estrutura genérica)
 interface Config {
   [key: string]: any;
 }
 
-//Interface para os pêndulos (pendulo1 até pendulo20)
+// Interface para os pêndulos (pendulo1 até pendulo20)
 interface Pendulos {
   pendulo1: number | null;
   pendulo2: number | null;
@@ -31,7 +31,7 @@ interface Pendulos {
   pendulo20: number | null;
 }
 
-//Interface para dados de configuração da termometria
+// Interface para dados de configuração da termometria
 interface dadosConfigTermometria {
   config: Config;
   empresa: string;
@@ -51,15 +51,14 @@ export interface ParamsConfigTermometria {
   silo?: string;
 }
 
+/** Tipo exportado para uso em componentes (ex.: MonitorTermometriaCard) */
+export type DadosConfigTermometria = dadosConfigTermometria;
+
 /**
  * Hook para carregar os dados de configuração da termometria.
- * Pode ser usado para listar todos os silos (sem params) ou para a página do silo (com unidade e silo).
- * Quando o usuário seleciona o silo no Sidebar ou no card da home termometria, use getTermometriaContext() e passe unidade/silo.
- * @param params Opcional: { unidade, silo } para carregar apenas o config daquele silo
- * @returns dadosConfigTermometria, loading, error, carregarConfigTermometria
+ * Sem params: lista todos os silos. Com { unidade, silo }: config do silo específico.
  */
 export const useConfigTermometria = () => {
-  // Estados
   const [dadosConfigTermometria, setDadosConfigTermometria] = useState<dadosConfigTermometria[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,11 +67,7 @@ export const useConfigTermometria = () => {
     setError(null);
     setLoading(true);
 
-    const unidade = params?.unidade;
-    const silo = params?.silo;
-
     try {
-      // Obtém a empresa do localStorage
       const empresa = getEmpresa();
 
       if (!empresa) {
@@ -82,33 +77,31 @@ export const useConfigTermometria = () => {
       }
 
       const authHeaders = getAuthHeaders();
-
       const body: { empresa: string; unidade?: string; silo?: string } = { empresa };
-      if (unidade != null && unidade !== '') body.unidade = unidade;
-      if (silo != null && silo !== '') body.silo = silo;
+      if (params?.unidade != null && params.unidade !== '') body.unidade = params.unidade;
+      if (params?.silo != null && params.silo !== '') body.silo = params.silo;
 
       const response = await axios.post(
-        `https://api-system.agroflowsystems.com.br/termometria/config`,
+        'https://api-system.agroflowsystems.com.br/termometria/config',
         body,
-        {
-          headers: {
-            ...authHeaders
-          }
-        }
+        { headers: { ...authHeaders } }
       );
-            
-      // A API pode retornar array direto ou objeto com payload (ex: { payload: [...] })
+
       const rawData = response.data;
-      const dataArray = Array.isArray(rawData)
-        ? rawData
-        : rawData?.payload && Array.isArray(rawData.payload)
-          ? rawData.payload
-          : [];
+
+      // API pode retornar array, { payload: [...] } ou um único objeto { config, pendulos }
+      let dataArray: any[] = [];
+      if (Array.isArray(rawData)) {
+        dataArray = rawData;
+      } else if (rawData?.payload && Array.isArray(rawData.payload)) {
+        dataArray = rawData.payload;
+      } else if (rawData && typeof rawData === 'object' && (rawData.config != null || rawData.pendulos != null)) {
+        dataArray = [rawData];
+      }
 
       if (dataArray.length > 0) {
         const dadosValidos: dadosConfigTermometria[] = [];
 
-        // Função auxiliar para validar Pendulos (aceita number | null)
         const isValidPendulos = (pendulos: any): pendulos is Pendulos => {
           if (!pendulos || typeof pendulos !== 'object') return false;
           for (let i = 1; i <= 20; i++) {
@@ -129,34 +122,33 @@ export const useConfigTermometria = () => {
         const toString = (v: any): string => (v != null ? String(v) : '');
 
         for (const dados of dataArray) {
-          // Aceita campos no root ou dentro de config (API retorna config: { empresa, unidade, silo, ... })
           const c = dados?.config != null && typeof dados.config === 'object' ? dados.config : {};
-          const empresa = dados?.empresa ?? c?.empresa;
-          const unidade = dados?.unidade ?? c?.unidade;
-          const silo = dados?.silo ?? c?.silo;
-          const tipo = dados?.tipo ?? c?.tipo;
+          const empresaVal = dados?.empresa ?? c?.empresa;
+          const unidadeVal = dados?.unidade ?? c?.unidade;
+          const siloVal = dados?.silo ?? c?.silo;
+          const tipoVal = dados?.tipo ?? c?.tipo;
+
           if (
             dados != null &&
             typeof dados === 'object' &&
-            typeof empresa === 'string' &&
-            typeof unidade === 'string' &&
-            typeof silo === 'string' &&
-            typeof tipo === 'string' &&
+            typeof empresaVal === 'string' &&
+            typeof unidadeVal === 'string' &&
+            typeof siloVal === 'string' &&
             isValidPendulos(dados.pendulos)
           ) {
-            const dadosConvertidos: dadosConfigTermometria = {
+            const tipoStr = tipoVal != null && typeof tipoVal === 'string' ? String(tipoVal).trim() : '';
+            dadosValidos.push({
               config: dados.config != null && typeof dados.config === 'object' ? dados.config : {},
-              empresa: String(empresa),
-              unidade: String(unidade),
-              silo: String(silo),
-              tipo: String(tipo),
+              empresa: String(empresaVal),
+              unidade: String(unidadeVal),
+              silo: String(siloVal),
+              tipo: tipoStr,
               capacidade: toString(dados.capacidade ?? c?.capacidade),
               numsensores: toNumber(dados.numsensores ?? c?.numsensores),
               numpendulos: toNumber(dados.numpendulos ?? c?.numpendulos),
               numaeradores: toNumber(dados.numaeradores ?? c?.numaeradores),
               pendulos: dados.pendulos,
-            };
-            dadosValidos.push(dadosConvertidos);
+            });
           }
         }
 

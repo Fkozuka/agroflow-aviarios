@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SecadorCard from '@/components/secadorCard';
-import { useConfigTermometria } from '@/hooks/hooksTermometria/useConfigTermometria';
+import { useTermometriaConfig } from '@/contexts/TermometriaConfigContext';
 import { setTermometriaContext } from '@/utils/apiConfig';
 import { Thermometer } from 'lucide-react';
 
 const HomeTermometria = () => {
   const navigate = useNavigate();
-  const { dadosConfigTermometria, loading, error, carregarConfigTermometria } = useConfigTermometria();
+  const { dadosConfigTermometria, loading, error, carregarConfigTermometria } = useTermometriaConfig();
 
   useEffect(() => {
     carregarConfigTermometria();
@@ -34,11 +34,11 @@ const HomeTermometria = () => {
   }, [dadosConfigTermometria]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       <Header />
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 flex min-h-0 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 min-h-0 overflow-y-auto">
           <div className="container mx-auto">
             {loading ? (
               <div className="text-center py-8">

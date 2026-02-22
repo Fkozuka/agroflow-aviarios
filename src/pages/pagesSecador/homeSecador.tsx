@@ -57,11 +57,11 @@ const HomeSecador = () => {
   }, [dadosCardSecador, dadosConfigSecador, secadoresPorUnidade]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       <Header />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 min-h-0 overflow-y-auto">
           <div className="container mx-auto">
             {loading || loadingConfig ? (
               <div className="text-center py-8">

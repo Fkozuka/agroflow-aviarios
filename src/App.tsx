@@ -15,6 +15,7 @@ import HomeTermometria from "./pages/pagesTermometria/homeTermometria";
 import PainelTermometria from "./pages/pagesTermometria/painelTermometria";
 import { AuthProvider } from "./hooks/use-auth";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { TermometriaConfigProvider } from "./contexts/TermometriaConfigContext";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <TermometriaConfigProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route 
@@ -87,6 +89,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </TermometriaConfigProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
