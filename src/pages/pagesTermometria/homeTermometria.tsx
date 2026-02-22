@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SecadorCard from '@/components/secadorCard';
 import { useConfigTermometria } from '@/hooks/hooksTermometria/useConfigTermometria';
+import { setTermometriaContext } from '@/utils/apiConfig';
 import { Thermometer } from 'lucide-react';
 
 const HomeTermometria = () => {
@@ -61,7 +62,12 @@ const HomeTermometria = () => {
                       return (
                         <div
                           key={`${unidade}-${silo}`}
-                          onClick={() => navigate(`/termometria/${encodeURIComponent(String(silo))}`)}
+                          onClick={() => {
+                          const empresa = String(getCampo(itemConfig, 'empresa') ?? '');
+                          const unidadeItem = String(getCampo(itemConfig, 'unidade') ?? unidade);
+                          setTermometriaContext({ empresa, unidade: unidadeItem, silo: String(silo) });
+                          navigate(`/termometria/${encodeURIComponent(String(silo))}`);
+                        }}
                           className="cursor-pointer transition-transform hover:scale-105"
                         >
                           <SecadorCard

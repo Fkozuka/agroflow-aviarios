@@ -12,6 +12,7 @@ import Grupo from "./pages/grupo";
 import HomeSecador from "./pages/pagesSecador/homeSecador";
 import PainelSecador from "./pages/pagesSecador/painelSecador";
 import HomeTermometria from "./pages/pagesTermometria/homeTermometria";
+import PainelTermometria from "./pages/pagesTermometria/painelTermometria";
 import { AuthProvider } from "./hooks/use-auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -72,6 +73,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <HomeTermometria />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/termometria/:silo" 
+              element={
+                <ProtectedRoute>
+                  <PainelTermometria />
                 </ProtectedRoute>
               } 
             />

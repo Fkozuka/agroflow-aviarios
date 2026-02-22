@@ -6,7 +6,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
 import { useConfigTermometria } from '@/hooks/hooksTermometria/useConfigTermometria';
-import { setSecadorContext } from '@/utils/apiConfig';
+import { setSecadorContext, setTermometriaContext } from '@/utils/apiConfig';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const Sidebar = () => {
@@ -166,7 +166,10 @@ const Sidebar = () => {
                             className="w-full justify-start text-white/80 hover:bg-industrial-primary/80 hover:text-white text-xs"
                             asChild
                           >
-                            <Link to={`/termometria/${encodeURIComponent(item.silo)}`}>
+                            <Link
+                              to={`/termometria/${encodeURIComponent(item.silo)}`}
+                              onClick={() => setTermometriaContext({ empresa: item.empresa, unidade: item.unidade, silo: item.silo })}
+                            >
                               <List className="mr-2 h-3 w-3" />
                               {item.silo}
                             </Link>

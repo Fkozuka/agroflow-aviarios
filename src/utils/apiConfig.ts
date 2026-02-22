@@ -127,3 +127,35 @@ export const setSecadorContext = (context: SecadorContext): void => {
   localStorage.setItem(SECADOR_CONTEXT_KEY, JSON.stringify(context));
 };
 
+const TERMOMETRIA_CONTEXT_KEY = 'termometriaContext';
+
+/** Contexto da termometria/silo no mesmo formato do Sidebar (empresa, unidade, silo) */
+export interface TermometriaContext {
+  empresa: string;
+  unidade: string;
+  silo: string;
+}
+
+/**
+ * Retorna o contexto completo da termometria (empresa, unidade, silo).
+ * Usado quando o usuário seleciona um silo no Sidebar ou no card da home termometria.
+ */
+export const getTermometriaContext = (): TermometriaContext | null => {
+  try {
+    const raw = localStorage.getItem(TERMOMETRIA_CONTEXT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as TermometriaContext;
+    if (parsed?.empresa && parsed?.unidade && parsed?.silo) return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Persiste o contexto da termometria (empresa, unidade, silo) ao selecionar silo no Sidebar ou no card.
+ */
+export const setTermometriaContext = (context: TermometriaContext): void => {
+  localStorage.setItem(TERMOMETRIA_CONTEXT_KEY, JSON.stringify(context));
+};
+

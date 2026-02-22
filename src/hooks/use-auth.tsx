@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("empresa");
     localStorage.removeItem("secadorSelecionado");
     localStorage.removeItem("secadorContext");
+    localStorage.removeItem("termometriaContext");
     setIsAuthenticated(false);
     setUserName(null);
     navigate("/login", { replace: true });

@@ -45,9 +45,18 @@ interface dadosConfigTermometria {
   pendulos: Pendulos;
 }
 
+/** Parâmetros opcionais para carregar config de um silo específico (página do silo, sidebar, card home) */
+export interface ParamsConfigTermometria {
+  unidade?: string;
+  silo?: string;
+}
+
 /**
- * Hook para carregar os dados de configuração da termometria
- * @returns 
+ * Hook para carregar os dados de configuração da termometria.
+ * Pode ser usado para listar todos os silos (sem params) ou para a página do silo (com unidade e silo).
+ * Quando o usuário seleciona o silo no Sidebar ou no card da home termometria, use getTermometriaContext() e passe unidade/silo.
+ * @param params Opcional: { unidade, silo } para carregar apenas o config daquele silo
+ * @returns dadosConfigTermometria, loading, error, carregarConfigTermometria
  */
 export const useConfigTermometria = () => {
   // Estados
@@ -55,14 +64,17 @@ export const useConfigTermometria = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const carregarConfigTermometria = useCallback(async () => {
+  const carregarConfigTermometria = useCallback(async (params?: ParamsConfigTermometria) => {
     setError(null);
     setLoading(true);
-    
+
+    const unidade = params?.unidade;
+    const silo = params?.silo;
+
     try {
       // Obtém a empresa do localStorage
       const empresa = getEmpresa();
-      
+
       if (!empresa) {
         setError('Empresa não encontrada');
         setLoading(false);
@@ -71,11 +83,13 @@ export const useConfigTermometria = () => {
 
       const authHeaders = getAuthHeaders();
 
+      const body: { empresa: string; unidade?: string; silo?: string } = { empresa };
+      if (unidade != null && unidade !== '') body.unidade = unidade;
+      if (silo != null && silo !== '') body.silo = silo;
+
       const response = await axios.post(
         `https://api-system.agroflowsystems.com.br/termometria/config`,
-        {
-          empresa: empresa
-        },
+        body,
         {
           headers: {
             ...authHeaders
