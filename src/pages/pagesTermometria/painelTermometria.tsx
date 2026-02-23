@@ -43,14 +43,11 @@ const PainelTermometria = () => {
     return dadosConfigTermometria[0] ?? null;
   }, [dadosConfigTermometria, siloAtual]);
 
-  // Carrega config do silo quando a página ou o contexto mudam
+  // Carrega sempre a lista completa de configs (sem filtro), igual à home termometria.
+  // configSilo é obtido pelo useMemo que busca o silo na lista por siloAtual.
   useEffect(() => {
-    if (!siloAtual) return;
-    carregarConfigTermometria({
-      ...(ctx?.unidade && { unidade: ctx.unidade }),
-      silo: siloAtual,
-    });
-  }, [siloAtual, ctx?.unidade, carregarConfigTermometria]);
+    carregarConfigTermometria();
+  }, [carregarConfigTermometria]);
 
   // Carrega leituras online do silo
   useEffect(() => {
@@ -93,7 +90,16 @@ const PainelTermometria = () => {
             </div>
 
             {carregandoInicial && <p className="text-industrial-gray">Carregando...</p>}
-            {temErroInicial && <p className="text-industrial-error">Erro: {error}</p>}
+            {temErroInicial && (
+              <div className="text-industrial-error space-y-2">
+                <p>Erro: {error}</p>
+                {error?.includes('Empresa não encontrada') && (
+                  <p className="text-sm text-muted-foreground">
+                    Acesse a página inicial do sistema primeiro para carregar seus dados.
+                  </p>
+                )}
+              </div>
+            )}
 
             {!carregandoInicial && !temErroInicial && (
               <>

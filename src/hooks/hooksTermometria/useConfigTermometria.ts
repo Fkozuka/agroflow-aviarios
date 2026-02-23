@@ -113,6 +113,13 @@ export const useConfigTermometria = () => {
           return true;
         };
 
+        const pendulosVazios: Pendulos = {
+          pendulo1: null, pendulo2: null, pendulo3: null, pendulo4: null, pendulo5: null,
+          pendulo6: null, pendulo7: null, pendulo8: null, pendulo9: null, pendulo10: null,
+          pendulo11: null, pendulo12: null, pendulo13: null, pendulo14: null, pendulo15: null,
+          pendulo16: null, pendulo17: null, pendulo18: null, pendulo19: null, pendulo20: null,
+        };
+
         const toNumber = (v: any): number => {
           if (v == null) return 0;
           if (typeof v === 'number' && !Number.isNaN(v)) return v;
@@ -133,10 +140,10 @@ export const useConfigTermometria = () => {
             typeof dados === 'object' &&
             typeof empresaVal === 'string' &&
             typeof unidadeVal === 'string' &&
-            typeof siloVal === 'string' &&
-            isValidPendulos(dados.pendulos)
+            typeof siloVal === 'string'
           ) {
             const tipoStr = tipoVal != null && typeof tipoVal === 'string' ? String(tipoVal).trim() : '';
+            const pendulos = isValidPendulos(dados.pendulos) ? dados.pendulos : pendulosVazios;
             dadosValidos.push({
               config: dados.config != null && typeof dados.config === 'object' ? dados.config : {},
               empresa: String(empresaVal),
@@ -147,7 +154,7 @@ export const useConfigTermometria = () => {
               numsensores: toNumber(dados.numsensores ?? c?.numsensores),
               numpendulos: toNumber(dados.numpendulos ?? c?.numpendulos),
               numaeradores: toNumber(dados.numaeradores ?? c?.numaeradores),
-              pendulos: dados.pendulos,
+              pendulos,
             });
           }
         }
