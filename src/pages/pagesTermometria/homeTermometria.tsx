@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SecadorCard from '@/components/secadorCard';
-import { useTermometriaConfig } from '@/contexts/TermometriaConfigContext';
+import { useConfigTermometria } from '@/hooks/hooksTermometria/useConfigTermometria';
 import { setTermometriaContext } from '@/utils/apiConfig';
 import { Thermometer } from 'lucide-react';
 
 const HomeTermometria = () => {
   const navigate = useNavigate();
-  const { dadosConfigTermometria, loading, error, carregarConfigTermometria } = useTermometriaConfig();
+  const { dadosConfigTermometria, loading, error, carregarConfigTermometria } = useConfigTermometria();
 
   useEffect(() => {
     carregarConfigTermometria();

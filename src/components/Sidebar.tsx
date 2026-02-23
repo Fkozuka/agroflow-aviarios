@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
-import { useTermometriaConfig } from '@/contexts/TermometriaConfigContext';
+import { useConfigTermometria } from '@/hooks/hooksTermometria/useConfigTermometria';
 import { setSecadorContext, setTermometriaContext } from '@/utils/apiConfig';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
@@ -14,7 +14,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const { statusCLP, loading, error } = useStatusCLP();
   const { dadosConfigSecador, loading: loadingSecador, carregarConfigSecador } = useConfigSecador();
-  const { dadosConfigTermometria, loading: loadingTermometria, carregarConfigTermometria } = useTermometriaConfig();
+  const { dadosConfigTermometria, loading: loadingTermometria, carregarConfigTermometria } = useConfigTermometria();
 
   const isSecadorSection = pathname.startsWith('/secador');
   const isTermometriaSection = pathname.startsWith('/termometria');

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
-import { useTermometriaConfig } from '@/contexts/TermometriaConfigContext';
+import { useConfigTermometria } from '@/hooks/hooksTermometria/useConfigTermometria';
 import { useOnlineTermometria } from '@/hooks/hooksTermometria/useOnlineTermometria';
 import { getTermometriaContext } from '@/utils/apiConfig';
 import { ArrowLeft } from 'lucide-react';
@@ -20,7 +20,7 @@ const PainelTermometria = () => {
   const navigate = useNavigate();
   const ctx = getTermometriaContext();
 
-  const { dadosConfigTermometria, loading, error, carregarConfigTermometria } = useTermometriaConfig();
+  const { dadosConfigTermometria, loading, error, carregarConfigTermometria } = useConfigTermometria();
   const { dadosOnlineTermometria, loading: loadingOnline, error: errorOnline, carregarOnlineTermometria } = useOnlineTermometria();
 
   // Silo em exibição: prioridade para o parâmetro da URL, depois contexto

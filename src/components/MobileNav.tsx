@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Link, useLocation } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
-import { useTermometriaConfig } from '@/contexts/TermometriaConfigContext';
+import { useConfigTermometria } from '@/hooks/hooksTermometria/useConfigTermometria';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { setSecadorContext, setTermometriaContext } from '@/utils/apiConfig';
 
@@ -15,7 +15,7 @@ const MobileNav: React.FC = () => {
   const { pathname } = useLocation();
   const { statusCLP, loading, error } = useStatusCLP();
   const { dadosConfigSecador, loading: loadingSecador, carregarConfigSecador } = useConfigSecador();
-  const { dadosConfigTermometria, loading: loadingTermometria, carregarConfigTermometria } = useTermometriaConfig();
+  const { dadosConfigTermometria, loading: loadingTermometria, carregarConfigTermometria } = useConfigTermometria();
 
   const isSecadorSection = pathname.startsWith('/secador');
   const isTermometriaSection = pathname.startsWith('/termometria');

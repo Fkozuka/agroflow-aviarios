@@ -8,13 +8,22 @@ export interface FiltroSecadorOnline {
   unidade?: string | null;
 }
 
-//Interface para dados do card do secador
-interface dadosCardSecador {
-  status?: string;
+/** Formato de cada item retornado pela API /secador/card (sempre um array) */
+interface ItemCardSecadorApi {
+  status: number;
   unidade: string;
   secador: string;
-  tempEntrada: string | null;
-  umidadeSaida: string | null;
+  tempEntrada: string;
+  umidadeSaida: string;
+}
+
+/** Dados do card do secador usados na UI (status em string para exibição) */
+interface dadosCardSecador {
+  status: string;
+  unidade: string;
+  secador: string;
+  tempEntrada: string;
+  umidadeSaida: string;
 }
 
 /**
@@ -50,55 +59,25 @@ export const useCardSecador = () => {
           }
         }
       );
-      
-      // Função auxiliar para garantir que o valor seja string ou null
-      const toStringOrNull = (value: any): string | null => {
-        if (value === null || value === undefined || value === '') return null;
-        return String(value);
-      };
 
-      // A API retorna um array com objetos
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        const dadosValidos: dadosCardSecador[] = [];
-        
-        // Processa todos os itens do array
-        for (const dados of response.data) {
-          if (typeof dados.unidade === 'string' && typeof dados.secador === 'string') {
-            const dadosConvertidos: dadosCardSecador = {
-              status: dados.status !== undefined ? String(dados.status) : undefined,
-              unidade: dados.unidade,
-              secador: dados.secador,
-              tempEntrada: toStringOrNull(dados.tempEntrada),
-              umidadeSaida: toStringOrNull(dados.umidadeSaida),
-            };
-            dadosValidos.push(dadosConvertidos);
-          }
-        }
-        
-        if (dadosValidos.length > 0) {
-          setDadosCardSecador(dadosValidos);
-        } else {
-          setError('Formato de dados inválido');
-        }
-      } else if (response.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
-        // Se retornar um objeto único, converte para array
-        const dados = response.data;
-        
-        if (typeof dados.unidade === 'string' && typeof dados.secador === 'string') {
-          const dadosConvertidos: dadosCardSecador = {
-            status: dados.status !== undefined ? String(dados.status) : undefined,
-            unidade: dados.unidade,
-            secador: dados.secador,
-            tempEntrada: toStringOrNull(dados.tempEntrada),
-            umidadeSaida: toStringOrNull(dados.umidadeSaida),
-          };
-          setDadosCardSecador([dadosConvertidos]);
-        } else {
-          setError('Formato de dados inválido');
-        }
-      } else {
+      // A API sempre retorna um array: status (int), unidade, secador, tempEntrada, umidadeSaida (strings)
+      const raw = response.data;
+      if (!Array.isArray(raw)) {
         setError('Formato de dados inválido');
+        return;
       }
+
+      const dadosValidos: dadosCardSecador[] = raw
+        .filter((d: ItemCardSecadorApi) => typeof d.unidade === 'string' && typeof d.secador === 'string')
+        .map((d: ItemCardSecadorApi) => ({
+          status: String(d.status ?? 0),
+          unidade: d.unidade,
+          secador: d.secador,
+          tempEntrada: d.tempEntrada != null && d.tempEntrada !== '' ? String(d.tempEntrada) : '',
+          umidadeSaida: d.umidadeSaida != null && d.umidadeSaida !== '' ? String(d.umidadeSaida) : '',
+        }));
+
+      setDadosCardSecador(dadosValidos);
     } catch (err: any) {
       setError(err?.response?.data?.message || err?.message || 'Erro ao carregar dados do card do secador');
     } finally {
