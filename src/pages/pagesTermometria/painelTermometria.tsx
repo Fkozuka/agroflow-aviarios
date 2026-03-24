@@ -83,7 +83,11 @@ const PainelTermometria = () => {
               {labelEmpresaUnidade && (
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground">{labelEmpresaUnidade}</h2>
               )}
-              <Button variant="ghost" size="sm" onClick={() => navigate('/termometria')}>
+              <Button
+                onClick={() => navigate('/termometria')}
+                variant="outline"
+                size="sm"
+              >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar
               </Button>
