@@ -4,29 +4,28 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import SecadorCard from '@/components/secadorCard';
 import { useCardSecador } from '@/hooks/hooksSecador/useCardSecador';
-import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
-import { getSecadorContext } from '@/utils/apiConfig';
+import { useConfigSecador as useConfigSidebarSecador } from '@/hooks/hooksSecador/useConfigSidebarSecador';
+import { getSecadorContext, setSecadorContext } from '@/utils/apiConfig';
 import { Wind } from 'lucide-react';
 
 const HomeSecador = () => {
   const navigate = useNavigate();
   const { dadosCardSecador, loading, error, carregarCardSecador } = useCardSecador();
-  const { dadosConfigSecador, loading: loadingConfig, carregarConfigSecador } = useConfigSecador();
+  const { dadosConfigSecador, loading: loadingConfig, carregarConfigSecador } = useConfigSidebarSecador();
 
   // Ao acionar a página: carrega a config primeiro
   useEffect(() => {
     carregarConfigSecador();
   }, [carregarConfigSecador]);
 
-  // Quando a config estiver pronta, busca os dados dos cards (empresa e unidade do contexto ou do primeiro item)
+  // Quando a config estiver pronta, busca os dados dos cards da empresa.
   useEffect(() => {
     if (loadingConfig) return;
     const context = getSecadorContext();
     const primeiroItem = dadosConfigSecador[0];
     const empresa = context?.empresa ?? primeiroItem?.empresa;
-    const unidade = context?.unidade ?? primeiroItem?.unidade;
-    if (empresa && unidade) {
-      carregarCardSecador({ empresa, unidade });
+    if (empresa) {
+      carregarCardSecador({ empresa });
     } else {
       carregarCardSecador();
     }
@@ -44,17 +43,18 @@ const HomeSecador = () => {
     return agrupados;
   }, [dadosConfigSecador]);
 
-  // Dados ao vivo (dadosCardSecador) para preencher value1, value2 e status quando disponíveis
-  const getDadosCardPorSecador = (nomeSecador: string) =>
-    dadosCardSecador.find((c) => c.secador === nomeSecador);
+  const normalizarUnidade = (unidade: string) =>
+    unidade.trim().replace(/^unidade\s+/i, '').toLowerCase();
 
-  useEffect(() => {
-    console.log('[HomeSecador] Dados que estão chegando:', {
-      dadosCardSecador,
-      dadosConfigSecador,
-      secadoresPorUnidade,
-    });
-  }, [dadosCardSecador, dadosConfigSecador, secadoresPorUnidade]);
+  // Dados ao vivo (dadosCardSecador) para preencher value1, value2 e status quando disponíveis
+  const getDadosCardPorSecador = (nomeSecador: string, unidade: string) =>
+    dadosCardSecador.find(
+      (c) =>
+        c.secador === nomeSecador &&
+        normalizarUnidade(c.unidade) === normalizarUnidade(unidade)
+    );
+
+  const isCarregamentoInicial = loadingConfig || (loading && dadosCardSecador.length === 0);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -63,7 +63,7 @@ const HomeSecador = () => {
         <Sidebar />
         <main className="flex-1 min-h-0 overflow-y-auto">
           <div className="container mx-auto">
-            {loading || loadingConfig ? (
+            {isCarregamentoInicial ? (
               <div className="text-center py-8">
                 <p className="text-industrial-gray">Carregando dados...</p>
               </div>
@@ -79,17 +79,24 @@ const HomeSecador = () => {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {itensConfig.map((itemConfig) => {
-                      const dadosCard = getDadosCardPorSecador(itemConfig.secador);
+                      const dadosCard = getDadosCardPorSecador(itemConfig.secador, itemConfig.unidade);
                       return (
                         <div
                           key={`${itemConfig.unidade}-${itemConfig.secador}`}
-                          onClick={() => navigate(`/secador/${itemConfig.secador}`)}
+                          onClick={() => {
+                            setSecadorContext({
+                              empresa: itemConfig.empresa,
+                              unidade: itemConfig.unidade,
+                              secador: itemConfig.secador,
+                            });
+                            navigate(`/secador/${itemConfig.secador}`);
+                          }}
                           className="cursor-pointer transition-transform hover:scale-105"
                         >
                           <SecadorCard
                             title={itemConfig.secador}
-                            value1={dadosCard?.tempEntrada ?? itemConfig.tempEntrada?.max ?? 'N/A'}
-                            value2={dadosCard?.umidadeSaida ?? itemConfig.umidadeSaida?.max ?? 'N/A'}
+                            value1={dadosCard?.tempEntrada ?? 'N/A'}
+                            value2={dadosCard?.umidadeSaida ?? 'N/A'}
                             description1="Temperatura Entrada"
                             description2="Umidade Saída"
                             unit1="°C"

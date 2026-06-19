@@ -45,6 +45,27 @@ interface SecadorConfig {
   tonSaida: ConfigCampoMax;
 }
 
+type MetricConfigKey =
+  | 'umidadeEntrada'
+  | 'umidadeSaida'
+  | 'tempQueimador'
+  | 'pressaoQueimador'
+  | 'tempEntrada'
+  | 'tempSaida'
+  | 'tonEntrada'
+  | 'tonSaida';
+
+const metricConfigKeyById: Record<string, MetricConfigKey> = {
+  umidade_entrada: 'umidadeEntrada',
+  umidade_saida: 'umidadeSaida',
+  temperatura_queimador: 'tempQueimador',
+  pressao_queimador: 'pressaoQueimador',
+  temperatura_entrada: 'tempEntrada',
+  temperatura_saida: 'tempSaida',
+  tonelada_entrada: 'tonEntrada',
+  tonelada_saida: 'tonSaida',
+};
+
 interface DryerMonitorCardProps {
   secadorId: number;
   nome: string;
@@ -70,6 +91,19 @@ const parseConfigValue = (value: string | null): number | null => {
   if (value === null || value === '') return null;
   const parsed = parseFloat(value);
   return isNaN(parsed) ? null : parsed;
+};
+
+const getMetricConfig = (
+  id: string,
+  config?: SecadorConfig | null
+): ConfigCampo | ConfigCampoMax | undefined => {
+  const key = metricConfigKeyById[id];
+  return key ? config?.[key] : undefined;
+};
+
+const isMetricVisible = (id: string, config?: SecadorConfig | null): boolean => {
+  const campo = getMetricConfig(id, config);
+  return !campo || campo.ativo;
 };
 
 // Função para determinar o status baseado no valor e configuração
@@ -106,31 +140,7 @@ const getMetricStatus = (id: string, value: number, config?: SecadorConfig | nul
     }
   }
 
-  // Usa a configuração do hook
-  let campo: ConfigCampo | ConfigCampoMax | undefined;
-  
-  switch (id) {
-    case 'umidade_entrada':
-      campo = config.umidadeEntrada;
-      break;
-    case 'umidade_saida':
-      campo = config.umidadeSaida;
-      break;
-    case 'temperatura_queimador':
-      campo = config.tempQueimador;
-      break;
-    case 'pressao_queimador':
-      campo = config.pressaoQueimador;
-      break;
-    case 'temperatura_entrada':
-      campo = config.tempEntrada;
-      break;
-    case 'temperatura_saida':
-      campo = config.tempSaida;
-      break;
-    default:
-      return 'normal';
-  }
+  const campo = getMetricConfig(id, config);
 
   if (!campo || !campo.ativo) {
     return 'normal';
@@ -185,7 +195,7 @@ const convertDadosToMetrics = (
   dados: DryerMonitorCardProps['dados'],
   config?: SecadorConfig | null
 ): DryerMetric[] => {
-  return [
+  const metrics: DryerMetric[] = [
     {
       id: "umidade_entrada",
       label: "Umid. Entrada",
@@ -251,6 +261,8 @@ const convertDadosToMetrics = (
       position: { bottom: "2%", right: "37%" },
     },
   ];
+
+  return metrics.filter((metric) => isMetricVisible(metric.id, config));
 };
 
 export function DryerMonitorCard({

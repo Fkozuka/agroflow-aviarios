@@ -6,7 +6,7 @@ import { DryerMonitorCard } from '@/components/monitorSecadorCard';
 import SecadoresChart from '@/components/SecadoresChart';
 import { useCardSecador } from '@/hooks/hooksSecador/useOnlineSecador';
 import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
-import { setSecadorContext } from '@/utils/apiConfig';
+import { getSecadorContext, setSecadorContext } from '@/utils/apiConfig';
 import { useDadosSecador } from '@/hooks/hooksSecador/usedadosSecador';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,14 +24,29 @@ const PainelSecador = () => {
   const [dateFinal, setDateFinal] = useState<Date | undefined>(undefined);
   const [selectedParameter, setSelectedParameter] = useState<string>('umidade_entrada');
 
+  const normalizarUnidade = (unidade?: string | null) =>
+    (unidade ?? '').trim().replace(/^unidade\s+/i, '').toLowerCase();
+
+  const isMesmaUnidade = (unidadeA?: string | null, unidadeB?: string | null) =>
+    normalizarUnidade(unidadeA) === normalizarUnidade(unidadeB);
+
   useEffect(() => {
-    carregarConfigSecador();
-  }, [carregarConfigSecador]);
+    const context = getSecadorContext();
+    carregarConfigSecador({
+      unidade: context?.secador === secadorId ? context.unidade : undefined,
+      secador: secadorId,
+    });
+  }, [carregarConfigSecador, secadorId]);
 
   // Usa o mesmo item do config (dadosConfigSecador) que o Sidebar para empresa, unidade, secador
   useEffect(() => {
     if (!secadorId) return;
-    const itemConfig = dadosConfigSecador.find((c) => c.secador === secadorId);
+    const context = getSecadorContext();
+    const itemConfig = dadosConfigSecador.find(
+      (c) =>
+        c.secador === secadorId &&
+        (!context?.unidade || isMesmaUnidade(c.unidade, context.unidade))
+    );
     if (itemConfig) {
       setSecadorContext({ empresa: itemConfig.empresa, unidade: itemConfig.unidade, secador: itemConfig.secador });
       carregarCardSecador({ empresa: itemConfig.empresa, unidade: itemConfig.unidade, secador: itemConfig.secador });
@@ -50,14 +65,22 @@ const PainelSecador = () => {
   // Encontra o secador específico pelo nome
   const secadorAtual = useMemo(() => {
     if (!secadorId || !dadosCardSecador.length) return null;
-    return dadosCardSecador.find((secador) => secador.secador === secadorId);
+    const context = getSecadorContext();
+    return dadosCardSecador.find(
+      (secador) =>
+        secador.secador === secadorId &&
+        (!context?.unidade || isMesmaUnidade(secador.unidade, context.unidade))
+    );
   }, [secadorId, dadosCardSecador]);
 
   // Encontra a configuração do secador específico
   const configSecador = useMemo(() => {
     if (!secadorId || !dadosConfigSecador.length) return null;
+    const context = getSecadorContext();
     return dadosConfigSecador.find(
-      (config) => config.secador === secadorId
+      (config) =>
+        config.secador === secadorId &&
+        (!context?.unidade || isMesmaUnidade(config.unidade, context.unidade))
     );
   }, [secadorId, dadosConfigSecador]);
 

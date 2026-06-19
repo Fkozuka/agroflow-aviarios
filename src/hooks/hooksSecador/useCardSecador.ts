@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { getAuthHeaders, getEmpresa, getUnidade, getSecadorContext } from '@/utils/apiConfig';
+import { getAuthHeaders, getEmpresa, getUnidade, getSecadorContext, getSystemApiBaseUrl } from '@/utils/apiConfig';
 
 /** Parâmetros no mesmo formato do item do Sidebar (empresa, unidade, secador) */
 export interface FiltroSecadorOnline {
@@ -35,14 +35,19 @@ export const useCardSecador = () => {
   const [dadosCardSecador, setDadosCardSecador] = useState<dadosCardSecador[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const ultimoFiltroRef = useRef<FiltroSecadorOnline | undefined>(undefined);
+  const iniciouCarregamentoRef = useRef(false);
 
   const carregarCardSecador = useCallback(async (filtro?: FiltroSecadorOnline) => {
+    ultimoFiltroRef.current = filtro;
+    iniciouCarregamentoRef.current = true;
     setError(null);
     setLoading(true);
 
     try {
-      const empresa = filtro?.empresa ?? getSecadorContext()?.empresa ?? getEmpresa();
-      const unidade = filtro?.unidade ?? getSecadorContext()?.unidade ?? getUnidade();
+      const context = filtro ? null : getSecadorContext();
+      const empresa = filtro?.empresa ?? context?.empresa ?? getEmpresa();
+      const unidade = filtro?.unidade ?? context?.unidade ?? getUnidade();
 
       const authHeaders = getAuthHeaders();
 
@@ -51,7 +56,7 @@ export const useCardSecador = () => {
       if (unidade) body.unidade = unidade;
 
       const response = await axios.post(
-        `https://api-system.agroflowsystems.com.br/secador/card`,
+        `${getSystemApiBaseUrl()}/secador/card`,
         body,
         {
           headers: {
@@ -84,6 +89,16 @@ export const useCardSecador = () => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (iniciouCarregamentoRef.current) {
+        carregarCardSecador(ultimoFiltroRef.current);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [carregarCardSecador]);
 
   return {
     dadosCardSecador,

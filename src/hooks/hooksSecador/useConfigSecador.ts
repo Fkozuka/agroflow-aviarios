@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import { getAuthHeaders, getEmpresa } from '@/utils/apiConfig';
+import { getAuthHeaders, getEmpresa, getSecadorContext, getSystemApiBaseUrl } from '@/utils/apiConfig';
 
 //Interface para campos de configuração com min/max
 interface ConfigCampo {
@@ -32,6 +32,11 @@ interface dadosConfigSecador {
   tonSaida: ConfigCampoMax;
 }
 
+export interface ParamsConfigSecador {
+  unidade?: string | null;
+  secador?: string | null;
+}
+
 /**
  * Hook para carregar os dados de configuração do secador
  * @returns 
@@ -42,7 +47,7 @@ export const useConfigSecador = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const carregarConfigSecador = useCallback(async () => {
+  const carregarConfigSecador = useCallback(async (params?: ParamsConfigSecador) => {
     setError(null);
     setLoading(true);
     
@@ -57,12 +62,18 @@ export const useConfigSecador = () => {
       }
 
       const authHeaders = getAuthHeaders();
+      const context = params ? getSecadorContext() : null;
+      const unidade = params?.unidade ?? (context?.secador === params?.secador ? context.unidade : undefined);
+      const secador = params?.secador ?? context?.secador;
+      const endpoint = `${getSystemApiBaseUrl()}/secador/config`;
+      const body: Record<string, string> = { empresa };
+
+      if (unidade) body.unidade = unidade;
+      if (secador) body.secador = secador;
 
       const response = await axios.post(
-        `https://api-system.agroflowsystems.com.br/secador/config`,
-        {
-          empresa: empresa
-        },
+        endpoint,
+        body,
         {
           headers: {
             ...authHeaders

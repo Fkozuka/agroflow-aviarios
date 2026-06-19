@@ -4,7 +4,7 @@ import { List, Factory, Home, Thermometer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useStatusCLP } from '@/hooks/useStatusCLP';
-import { useConfigSecador } from '@/hooks/hooksSecador/useConfigSecador';
+import { useConfigSecador as useConfigSidebarSecador } from '@/hooks/hooksSecador/useConfigSidebarSecador';
 import { useConfigTermometria } from '@/hooks/hooksTermometria/useConfigTermometria';
 import { setSecadorContext, setTermometriaContext } from '@/utils/apiConfig';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -13,7 +13,7 @@ const Sidebar = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { statusCLP, loading, error } = useStatusCLP();
-  const { dadosConfigSecador, loading: loadingSecador, carregarConfigSecador } = useConfigSecador();
+  const { dadosConfigSecador, loading: loadingSecador, carregarConfigSecador } = useConfigSidebarSecador();
   const { dadosConfigTermometria, loading: loadingTermometria, carregarConfigTermometria } = useConfigTermometria();
 
   const isSecadorSection = pathname.startsWith('/secador');

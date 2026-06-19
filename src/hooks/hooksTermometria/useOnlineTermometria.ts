@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import { getAuthHeaders, getEmpresa, getTermometriaContext } from '@/utils/apiConfig';
+import { getAuthHeaders, getEmpresa, getTermometriaContext, getSystemApiBaseUrl } from '@/utils/apiConfig';
 /** Um item do payload: leitura de um sensor (pendulo + sensor) com temperatura e status */
 export interface LeituraTermometria {
   pendulo: number;
@@ -57,7 +57,7 @@ export const useOnlineTermometria = () => {
       if (silo != null && silo !== '') body.silo = silo;
 
       const response = await axios.post<ResponseOnlineTermometria | LeituraTermometria[]>(
-        'https://api-system.agroflowsystems.com.br/termometria/online',
+        `${getSystemApiBaseUrl()}/termometria/online`,
         body,
         { headers: { ...authHeaders } }
       );

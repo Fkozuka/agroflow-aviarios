@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import { getAuthHeaders, getEmpresa } from '@/utils/apiConfig';
+import { getAuthHeaders, getEmpresa, getSystemApiBaseUrl } from '@/utils/apiConfig';
 
 // Interface para o objeto de configuração (estrutura genérica)
 interface Config {
@@ -82,7 +82,7 @@ export const useConfigTermometria = () => {
       if (params?.silo != null && params.silo !== '') body.silo = params.silo;
 
       const response = await axios.post(
-        'https://api-system.agroflowsystems.com.br/termometria/config',
+        `${getSystemApiBaseUrl()}/termometria/config`,
         body,
         { headers: { ...authHeaders } }
       );

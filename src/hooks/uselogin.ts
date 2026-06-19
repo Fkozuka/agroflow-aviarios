@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { getSystemApiBaseUrl } from '@/utils/apiConfig';
 
 // POST PARA RECEBER STATUS AUTENTICAÇÃO
 interface dadosAutenticacao {
@@ -25,7 +26,7 @@ export const useLogin = () => {
       
       try {
         // Buscar dados de autenticação
-        const response = await axios.post(`https://api-system.agroflowsystems.com.br/login`, {
+        const response = await axios.post(`${getSystemApiBaseUrl()}/login`, {
           username: dataLogin,
           password: dataPassword
         });

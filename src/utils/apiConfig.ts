@@ -1,31 +1,101 @@
-/**
- * Função utilitária para obter a porta da API baseada na unidade selecionada
- * @returns A porta da API (padrão: 1884 para Unidade Penha)
- */
-export const getApiPort = (): number => {
-  const unidadeId = localStorage.getItem('unidade');
-  const unidadeNome = localStorage.getItem('unidadeNome');
-  
-  // Unidade Penha (id: "1") usa porta 1884
-    if (unidadeId === "1" || unidadeNome === "Unidade Penha") {
-        return 1884;
-    }
-    if (unidadeId === "2" || unidadeNome === "Unidade Goioerê") {
-        return 1885;
-    }
-  
-  // Outras unidades podem ter outras portas
-  // Por padrão, retorna 1884 se não especificado
-  return 1884;
+const STORAGE_KEYS = {
+  authToken: 'auth_token',
+  empresa: 'empresa',
+  unidade: 'unidade',
+  unidadeNome: 'unidadeNome',
+  secadorSelecionado: 'secadorSelecionado',
+  secadorContext: 'secadorContext',
+  termometriaContext: 'termometriaContext',
+  systemApiBaseUrl: 'systemApiBaseUrl',
+} as const;
+
+const LOCAL_API_HOST = 'http://10.99.2.17';
+const DEFAULT_API_PORT = 1884;
+const UNIDADE_API_PORTS = [
+  { id: '1', nome: 'Unidade Penha', port: 1884 },
+  { id: '2', nome: 'Unidade Goioerê', port: 1885 },
+] as const;
+
+export const SYSTEM_API_BASE_URLS = {
+  producao: 'http://10.99.2.17:1886',
+  local: 'http://10.99.2.17:1886',
+} as const;
+
+export type SystemApiBaseUrlOption = keyof typeof SYSTEM_API_BASE_URLS;
+
+const getStorageItem = (key: string): string | null => {
+  return localStorage.getItem(key);
+};
+
+const setStorageItem = (key: string, value: string): void => {
+  localStorage.setItem(key, value);
+};
+
+const removeStorageItem = (key: string): void => {
+  localStorage.removeItem(key);
+};
+
+const parseStorageJson = <T>(key: string, isValid: (value: Partial<T>) => value is T): T | null => {
+  try {
+    const raw = getStorageItem(key);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<T>;
+    return isValid(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
+const normalizeUrl = (url: string): string => {
+  return url.trim().replace(/\/+$/, '');
+};
+
+const isSelectedUnidade = (id: string, nome: string): boolean => {
+  return getStorageItem(STORAGE_KEYS.unidade) === id || getStorageItem(STORAGE_KEYS.unidadeNome) === nome;
 };
 
 /**
- * Função utilitária para obter a URL base da API
- * @returns A URL base da API com a porta correta
+ * Função utilitária para obter a porta da API baseada na unidade selecionada.
+ */
+export const getApiPort = (): number => {
+  return UNIDADE_API_PORTS.find(({ id, nome }) => isSelectedUnidade(id, nome))?.port ?? DEFAULT_API_PORT;
+};
+
+/**
+ * Função utilitária para obter a URL base da API com a porta da unidade.
  */
 export const getApiBaseUrl = (): string => {
-  const port = getApiPort();
-  return `http://10.99.2.17:${port}`;
+  return `${LOCAL_API_HOST}:${getApiPort()}`;
+};
+
+/**
+ * Retorna a URL base da API principal do sistema.
+ * Pode ser alterada em tempo de execução usando setSystemApiBaseUrlOption.
+ */
+export const getSystemApiBaseUrl = (): string => {
+  return getStorageItem(STORAGE_KEYS.systemApiBaseUrl) || SYSTEM_API_BASE_URLS.producao;
+};
+
+/**
+ * Define uma URL personalizada para a API principal do sistema.
+ */
+export const setSystemApiBaseUrl = (url: string): void => {
+  setStorageItem(STORAGE_KEYS.systemApiBaseUrl, normalizeUrl(url));
+};
+
+/**
+ * Alterna entre as URLs conhecidas da API principal do sistema.
+ */
+export const setSystemApiBaseUrlOption = (option: SystemApiBaseUrlOption): void => {
+  setSystemApiBaseUrl(SYSTEM_API_BASE_URLS[option]);
+};
+
+/**
+ * Remove a URL personalizada e volta para a URL de produção.
+ */
+export const clearSystemApiBaseUrl = (): void => {
+  removeStorageItem(STORAGE_KEYS.systemApiBaseUrl);
 };
 
 /**
@@ -33,10 +103,7 @@ export const getApiBaseUrl = (): string => {
  * @returns true se a unidade for Goioerê, false caso contrário
  */
 export const isUnidadeGoioere = (): boolean => {
-  const unidadeId = localStorage.getItem('unidade');
-  const unidadeNome = localStorage.getItem('unidadeNome');
-  
-  return unidadeId === "2" || unidadeNome === "Unidade Goioerê";
+  return isSelectedUnidade('2', 'Unidade Goioerê');
 };
 
 /**
@@ -44,7 +111,7 @@ export const isUnidadeGoioere = (): boolean => {
  * @returns O token de autenticação ou null se não existir
  */
 export const getAuthToken = (): string | null => {
-  return localStorage.getItem('auth_token');
+  return getStorageItem(STORAGE_KEYS.authToken);
 };
 
 /**
@@ -66,7 +133,7 @@ export const getAuthHeaders = (): Record<string, string> => {
  * @returns A empresa do usuário ou null se não existir
  */
 export const getEmpresa = (): string | null => {
-  return localStorage.getItem('empresa');
+  return getStorageItem(STORAGE_KEYS.empresa);
 };
 
 /**
@@ -74,11 +141,8 @@ export const getEmpresa = (): string | null => {
  * @returns A unidade do usuário ou null se não existir
  */
 export const getUnidade = (): string | null => {
-  return localStorage.getItem('unidadeNome') || localStorage.getItem('unidade');
+  return getStorageItem(STORAGE_KEYS.unidadeNome) || getStorageItem(STORAGE_KEYS.unidade);
 };
-
-const SECADOR_SELECIONADO_KEY = 'secadorSelecionado';
-const SECADOR_CONTEXT_KEY = 'secadorContext';
 
 /** Contexto do secador no mesmo formato do item do Sidebar (empresa, unidade, secador) */
 export interface SecadorContext {
@@ -87,12 +151,16 @@ export interface SecadorContext {
   secador: string;
 }
 
+const isSecadorContext = (value: Partial<SecadorContext>): value is SecadorContext => {
+  return Boolean(value.empresa && value.unidade && value.secador);
+};
+
 /**
  * Função utilitária para obter o secador selecionado (último usado na sidebar/página)
  * @returns O nome do secador selecionado ou null se não existir
  */
 export const getSecador = (): string | null => {
-  return localStorage.getItem(SECADOR_SELECIONADO_KEY);
+  return getStorageItem(STORAGE_KEYS.secadorSelecionado);
 };
 
 /**
@@ -100,22 +168,14 @@ export const getSecador = (): string | null => {
  * Usado para enviar os mesmos parâmetros que o item do Sidebar na API.
  */
 export const getSecadorContext = (): SecadorContext | null => {
-  try {
-    const raw = localStorage.getItem(SECADOR_CONTEXT_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as SecadorContext;
-    if (parsed?.empresa && parsed?.unidade && parsed?.secador) return parsed;
-    return null;
-  } catch {
-    return null;
-  }
+  return parseStorageJson<SecadorContext>(STORAGE_KEYS.secadorContext, isSecadorContext);
 };
 
 /**
  * Persiste o secador selecionado (usado ao navegar para um secador ou selecionar no sidebar)
  */
 export const setSecador = (secador: string): void => {
-  localStorage.setItem(SECADOR_SELECIONADO_KEY, secador);
+  setStorageItem(STORAGE_KEYS.secadorSelecionado, secador);
 };
 
 /**
@@ -123,11 +183,9 @@ export const setSecador = (secador: string): void => {
  * Assim o useOnlineSecador envia os mesmos parâmetros que o item do Sidebar.
  */
 export const setSecadorContext = (context: SecadorContext): void => {
-  localStorage.setItem(SECADOR_SELECIONADO_KEY, context.secador);
-  localStorage.setItem(SECADOR_CONTEXT_KEY, JSON.stringify(context));
+  setSecador(context.secador);
+  setStorageItem(STORAGE_KEYS.secadorContext, JSON.stringify(context));
 };
-
-const TERMOMETRIA_CONTEXT_KEY = 'termometriaContext';
 
 /** Contexto da termometria/silo no mesmo formato do Sidebar (empresa, unidade, silo) */
 export interface TermometriaContext {
@@ -136,26 +194,22 @@ export interface TermometriaContext {
   silo: string;
 }
 
+const isTermometriaContext = (value: Partial<TermometriaContext>): value is TermometriaContext => {
+  return Boolean(value.empresa && value.unidade && value.silo);
+};
+
 /**
  * Retorna o contexto completo da termometria (empresa, unidade, silo).
  * Usado quando o usuário seleciona um silo no Sidebar ou no card da home termometria.
  */
 export const getTermometriaContext = (): TermometriaContext | null => {
-  try {
-    const raw = localStorage.getItem(TERMOMETRIA_CONTEXT_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as TermometriaContext;
-    if (parsed?.empresa && parsed?.unidade && parsed?.silo) return parsed;
-    return null;
-  } catch {
-    return null;
-  }
+  return parseStorageJson<TermometriaContext>(STORAGE_KEYS.termometriaContext, isTermometriaContext);
 };
 
 /**
  * Persiste o contexto da termometria (empresa, unidade, silo) ao selecionar silo no Sidebar ou no card.
  */
 export const setTermometriaContext = (context: TermometriaContext): void => {
-  localStorage.setItem(TERMOMETRIA_CONTEXT_KEY, JSON.stringify(context));
+  setStorageItem(STORAGE_KEYS.termometriaContext, JSON.stringify(context));
 };
 

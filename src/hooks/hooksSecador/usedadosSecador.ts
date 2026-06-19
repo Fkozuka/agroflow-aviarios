@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import { getAuthHeaders } from '@/utils/apiConfig';
+import { getAuthHeaders, getSystemApiBaseUrl } from '@/utils/apiConfig';
 import { format, startOfDay, endOfDay } from 'date-fns';
 
 //Interface para dados históricos do secador
@@ -79,7 +79,7 @@ export const useDadosSecador = () => {
       }
 
       const response = await axios.post(
-        `https://api-system.agroflowsystems.com.br/secador/dados`,
+        `${getSystemApiBaseUrl()}/secador/dados`,
         body,
         {
           headers: {

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
-import { getAuthHeaders } from '@/utils/apiConfig';
+import { getAuthHeaders, getSystemApiBaseUrl } from '@/utils/apiConfig';
 
 //Interface para dados dos sistemas do grupo
 interface dadosGrupo {
@@ -37,7 +37,7 @@ export const useGrupo = () => {
       const authHeaders = getAuthHeaders();
 
       const response = await axios.post(
-        `https://api-system.agroflowsystems.com.br/grupo`,
+        `${getSystemApiBaseUrl()}/grupo`,
         {
           username: userName
         },
